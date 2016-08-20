@@ -121,6 +121,9 @@ ASDL
               | Assign(expr* targets, expr value)
               | AugAssign(expr target, operator op, expr value)
 
+              -- not sure if bool is allowed, can always use int
+              | Print(expr? dest, expr* values, bool nl)
+
               -- use 'orelse' because else is a keyword in target languages
               | For(expr target, expr iter, stmt* body, stmt* orelse)
               | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse)
