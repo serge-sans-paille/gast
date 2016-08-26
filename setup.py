@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='gast',  # gast, daou naer!
-      version='0.1',
+      version='0.1.3',
       packages=['gast'],
       description='Python AST that abstracts the underlying Python version',
       author='serge-sans-paille',
