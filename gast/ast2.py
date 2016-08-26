@@ -17,6 +17,14 @@ class Ast2ToGAst(AstToGAst):
         ast.copy_location(new_node, node)
         return new_node
 
+    def visit_ExceptHandler(self, node):
+        new_node = gast.ExceptHandler(
+            self._visit(node.type) if node.type else None,
+            node.name.id if node.name else None,
+            self._visit(node.body))
+        ast.copy_location(new_node, node)
+        return new_node
+
     def visit_ClassDef(self, node):
         new_node = gast.ClassDef(
             self._visit(node.name),
@@ -143,6 +151,15 @@ class GAstToAst2(GAstToAst):
             self._visit(node.decorator_list),
         )
         ast.copy_location(new_node, node)
+        return new_node
+
+    def visit_ExceptHandler(self, node):
+        new_node = ast.ExceptHandler(
+            self._visit(node.type) if node.type else None,
+            ast.Name(node.name, ast.Store()) if node.name else None,
+            self._visit(node.body))
+        ast.copy_location(new_node, node)
+        ast.copy_location(new_node.name, node)
         return new_node
 
     def visit_ClassDef(self, node):

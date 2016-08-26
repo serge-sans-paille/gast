@@ -1,6 +1,5 @@
 import unittest
 
-import ast
 import gast
 import sys
 
@@ -20,8 +19,9 @@ class CompatTestCase(unittest.TestCase):
             compile(gast.gast_to_ast(tree), '<test>', 'exec')
 
         def test_TryExcept(self):
-            code = 'try:pass\nexcept e:pass\nelse:pass'
+            code = 'try:pass\nexcept e as k:pass\nelse:pass'
             tree = gast.parse(code)
+            self.assertEqual(tree.body[0].handlers[0].name, "k")
             compile(gast.gast_to_ast(tree), '<test>', 'exec')
 
         def test_Raise(self):
