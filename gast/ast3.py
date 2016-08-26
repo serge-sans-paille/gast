@@ -22,6 +22,16 @@ class Ast3ToGAst(AstToGAst):
         )
         return ast.copy_location(new_node, node)
 
+    def visit_ExceptHandler(self, node):
+        if node.name:
+            new_node = gast.ExceptHandler(
+                self._visit(node.type),
+                gast.Name(node.name, gast.Store(), None),
+                self._visit(node.body))
+            return ast.copy_location(new_node, node)
+        else:
+            return self.generic_visit(node)
+
     if 2 <= sys.version_info.minor <= 3:
 
         def _make_annotated_arg(self, parent, identifier, annotation):
@@ -67,6 +77,16 @@ class GAstToAst3(GAstToAst):
             self._visit(node.ctx),
         )
         return ast.copy_location(new_node, node)
+
+    def visit_ExceptHandler(self, node):
+        if node.name:
+            new_node = ast.ExceptHandler(
+                self._visit(node.type),
+                node.name.id,
+                self._visit(node.body))
+            return ast.copy_location(new_node, node)
+        else:
+            return self.generic_visit(node)
 
     if 2 <= sys.version_info.minor <= 3:
 

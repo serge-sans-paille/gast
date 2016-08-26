@@ -202,7 +202,7 @@ ASDL
 
         comprehension = (expr target, expr iter, expr* ifs)
 
-        excepthandler = ExceptHandler(expr? type, identifier? name, stmt* body)
+        excepthandler = ExceptHandler(expr? type, expr? name, stmt* body)
                         attributes (int lineno, int col_offset)
 
         arguments = (expr* args, expr? vararg, expr* kwonlyargs, expr* kw_defaults,

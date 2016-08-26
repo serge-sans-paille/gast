@@ -47,5 +47,11 @@ class CompatTestCase(unittest.TestCase):
             tree = gast.parse(code)
             compile(gast.gast_to_ast(tree), '<test>', 'exec')
 
+        def test_TryExceptNamed(self):
+            code = 'try:pass\nexcept e as f:pass\nelse:pass'
+            tree = gast.parse(code)
+            compile(gast.gast_to_ast(tree), '<test>', 'exec')
+
+
 if __name__ == '__main__':
     unittest.main()
