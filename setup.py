@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 setup(name='gast',  # gast, daou naer!
       version='0.1.4',
@@ -14,4 +14,5 @@ setup(name='gast',  # gast, daou naer!
                    'Natural Language :: English',
                    'Programming Language :: Python :: 2',
                    'Programming Language :: Python :: 3'],
+      test_suite='tests',
       )
