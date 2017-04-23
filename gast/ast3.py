@@ -88,6 +88,32 @@ class GAstToAst3(GAstToAst):
         else:
             return self.generic_visit(node)
 
+    if sys.version_info.minor < 5:
+
+        def visit_Call(self, node):
+            self.generic_visit(node)
+            new_node = ast.Call(
+                func=self._visit(node.func),
+                args=self._visit(node.args),
+                keywords=self._visit(node.keywords),
+                starargs=None,
+                kwargs=None,
+            )
+            return ast.copy_location(new_node, node)
+
+        def visit_ClassDef(self, node):
+            self.generic_visit(node)
+            new_node = ast.ClassDef(
+                name=self._visit(node.name),
+                bases=self._visit(node.bases),
+                keywords=self._visit(node.keywords),
+                body=self._visit(node.body),
+                decorator_list=self._visit(node.decorator_list),
+                starargs=None,
+                kwargs=None,
+            )
+            return ast.copy_location(new_node, node)
+
     if 2 <= sys.version_info.minor <= 3:
 
         def visit_arguments(self, node):
