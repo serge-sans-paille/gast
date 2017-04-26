@@ -89,6 +89,13 @@ with some new attributes/children.
   attribute, wrapped in a ``keyword`` node with the identifier set to
   ``None``, as done in Python3.
 
+Pit Falls
+*********
+
+- In Python3, ``None``, ``True`` and ``False`` are parsed as ``NamedConstant``
+  while they are parsed as regular ``Name`` in Python2. ``gast`` uses the same
+  convention.
+
 ASDL
 ****
 
