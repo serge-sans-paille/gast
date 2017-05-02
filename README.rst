@@ -49,6 +49,8 @@ GAST is tested using ``tox`` and Travis on the following Python versions:
 - 3.3
 - 3.4
 - 3.5
+- 3.6
+
 
 AST Changes
 -----------
@@ -88,6 +90,9 @@ with some new attributes/children.
   argument wrapped in a ``Starred`` node. They also loose their ``kwargs``
   attribute, wrapped in a ``keyword`` node with the identifier set to
   ``None``, as done in Python3.
+
+- ``comprehension`` nodes have an ``async`` attribute (that is always set
+  to 0).
 
 Pit Falls
 *********

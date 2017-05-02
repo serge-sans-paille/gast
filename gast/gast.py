@@ -202,7 +202,7 @@ _nodes = {
     'NotIn': ((), (), (cmpop,)),
 
     # comprehension
-    'comprehension': (('target', 'iter', 'ifs'), (), (AST,)),
+    'comprehension': (('target', 'iter', 'ifs', 'is_async'), (), (AST,)),
 
     # excepthandler
     'ExceptHandler': (('type', 'name', 'body'), ('lineno', 'col_offset'),

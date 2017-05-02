@@ -59,6 +59,17 @@ class Ast3ToGAst(AstToGAst):
             )
             return new_node
 
+    if sys.version_info.minor < 6:
+
+        def visit_comprehension(self, node):
+            new_node = gast.comprehension(
+                target=self._visit(node.target),
+                iter=self._visit(node.iter),
+                ifs=self._visit(node.ifs),
+                is_async=0,
+            )
+            return ast.copy_location(new_node, node)
+
 
 class GAstToAst3(GAstToAst):
 

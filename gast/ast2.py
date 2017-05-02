@@ -119,6 +119,15 @@ class Ast2ToGAst(AstToGAst):
         ast.copy_location(new_node, node)
         return new_node
 
+    def visit_comprehension(self, node):
+        new_node = gast.comprehension(
+            target=self._visit(node.target),
+            iter=self._visit(node.iter),
+            ifs=self._visit(node.ifs),
+            is_async=0,
+        )
+        return ast.copy_location(new_node, node)
+
     # arguments
     def visit_arguments(self, node):
         new_node = gast.arguments(
