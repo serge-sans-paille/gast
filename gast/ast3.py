@@ -59,6 +59,17 @@ class Ast3ToGAst(AstToGAst):
             )
             return new_node
 
+    if sys.version_info.minor < 6:
+
+        def visit_comprehension(self, node):
+            new_node = gast.comprehension(
+                target=self._visit(node.target),
+                iter=self._visit(node.iter),
+                ifs=self._visit(node.ifs),
+                is_async=0,
+            )
+            return ast.copy_location(new_node, node)
+
 
 class GAstToAst3(GAstToAst):
 
@@ -87,6 +98,32 @@ class GAstToAst3(GAstToAst):
             return ast.copy_location(new_node, node)
         else:
             return self.generic_visit(node)
+
+    if sys.version_info.minor < 5:
+
+        def visit_Call(self, node):
+            self.generic_visit(node)
+            new_node = ast.Call(
+                func=self._visit(node.func),
+                args=self._visit(node.args),
+                keywords=self._visit(node.keywords),
+                starargs=None,
+                kwargs=None,
+            )
+            return ast.copy_location(new_node, node)
+
+        def visit_ClassDef(self, node):
+            self.generic_visit(node)
+            new_node = ast.ClassDef(
+                name=self._visit(node.name),
+                bases=self._visit(node.bases),
+                keywords=self._visit(node.keywords),
+                body=self._visit(node.body),
+                decorator_list=self._visit(node.decorator_list),
+                starargs=None,
+                kwargs=None,
+            )
+            return ast.copy_location(new_node, node)
 
     if 2 <= sys.version_info.minor <= 3:
 

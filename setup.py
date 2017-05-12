@@ -1,4 +1,13 @@
-from distutils.core import setup
+# Use the newer `setuptools.setup()`, if available.
+try:
+    from setuptools import setup
+    kw = {
+        'test_suite': 'tests',
+        'tests_require': ['astunparse'],
+    }
+except ImportError:
+    from distutils.core import setup
+    kw = {}
 
 setup(name='gast',  # gast, daou naer!
       version='0.1.4',
@@ -14,4 +23,5 @@ setup(name='gast',  # gast, daou naer!
                    'Natural Language :: English',
                    'Programming Language :: Python :: 2',
                    'Programming Language :: Python :: 3'],
+      **kw
       )
