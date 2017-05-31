@@ -32,6 +32,29 @@ class Ast3ToGAst(AstToGAst):
         else:
             return self.generic_visit(node)
 
+    if sys.version_info.minor < 5:
+
+        def visit_Call(self, node):
+            if node.starargs:
+                star = gast.Starred(self._visit(node.starargs), gast.Load())
+                ast.copy_location(star, node)
+                starred = [star]
+            else:
+                starred = []
+
+            if node.kwargs:
+                kwargs = [gast.keyword(None, self._visit(node.kwargs))]
+            else:
+                kwargs = []
+
+            new_node = gast.Call(
+                self._visit(node.func),
+                self._visit(node.args) + starred,
+                self._visit(node.keywords) + kwargs,
+            )
+            ast.copy_location(new_node, node)
+            return new_node
+
     if 2 <= sys.version_info.minor <= 3:
 
         def _make_annotated_arg(self, parent, identifier, annotation):
@@ -102,15 +125,29 @@ class GAstToAst3(GAstToAst):
     if sys.version_info.minor < 5:
 
         def visit_Call(self, node):
-            self.generic_visit(node)
+            if node.args and isinstance(node.args[-1], gast.Starred):
+                args = node.args[:-1]
+                starargs = node.args[-1].value
+            else:
+                args = node.args
+                starargs = None
+
+            if node.keywords and node.keywords[-1].arg is None:
+                keywords = node.keywords[:-1]
+                kwargs = node.keywords[-1].value
+            else:
+                keywords = node.keywords
+                kwargs = None
+
             new_node = ast.Call(
-                func=self._visit(node.func),
-                args=self._visit(node.args),
-                keywords=self._visit(node.keywords),
-                starargs=None,
-                kwargs=None,
+                self._visit(node.func),
+                self._visit(args),
+                self._visit(keywords),
+                self._visit(starargs),
+                self._visit(kwargs),
             )
-            return ast.copy_location(new_node, node)
+            ast.copy_location(new_node, node)
+            return new_node
 
         def visit_ClassDef(self, node):
             self.generic_visit(node)
