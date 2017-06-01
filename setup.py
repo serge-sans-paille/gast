@@ -10,7 +10,7 @@ except ImportError:
     kw = {}
 
 setup(name='gast',  # gast, daou naer!
-      version='0.1.4',
+      version='0.1.5',
       packages=['gast'],
       description='Python AST that abstracts the underlying Python version',
       author='serge-sans-paille',
