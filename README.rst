@@ -151,6 +151,11 @@ ASDL
               | Import(alias* names)
               | ImportFrom(identifier? module, alias* names, int? level)
 
+              -- Doesn't capture requirement that locals must be
+              -- defined if globals is
+              -- still supports use as a function!
+              | Exec(expr body, expr? globals, expr? locals)
+
               | Global(identifier* names)
               | Nonlocal(identifier* names)
               | Expr(expr value)
@@ -180,8 +185,11 @@ ASDL
              -- x < 4 < 3 and (x < 4) < 3
              | Compare(expr left, cmpop* ops, expr* comparators)
              | Call(expr func, expr* args, keyword* keywords)
+             | Repr(expr value)
              | Num(object n) -- a number as a PyObject.
              | Str(string s) -- need to specify raw, unicode, etc?
+             | FormattedValue(expr value, int? conversion, expr? format_spec)
+             | JoinedStr(expr* values)
              | Bytes(bytes s)
              | NameConstant(singleton value)
              | Ellipsis
