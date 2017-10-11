@@ -62,6 +62,18 @@ class CompatTestCase(unittest.TestCase):
             tree = gast.parse(code)
             compile(gast.gast_to_ast(tree), '<test>', 'exec')
 
+        if sys.version_info.minor >= 6:
+
+            def test_FormattedValue(self):
+                code = 'e = 1; f"{e}"'
+                tree = gast.parse(code)
+                compile(gast.gast_to_ast(tree), '<test>', 'exec')
+
+            def test_JoinedStr(self):
+                code = 'e = 1; f"e = {e}"'
+                tree = gast.parse(code)
+                compile(gast.gast_to_ast(tree), '<test>', 'exec')
+
 
 if __name__ == '__main__':
     unittest.main()
