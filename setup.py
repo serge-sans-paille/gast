@@ -13,6 +13,11 @@ setup(name='gast',  # gast, daou naer!
       version='0.1.5',
       packages=['gast'],
       description='Python AST that abstracts the underlying Python version',
+      long_description='''
+A generic AST to represent Python2 and Python3's Abstract Syntax Tree(AST).
+
+GAST provides a compatibility layer between the AST of various Python versions,
+as produced by ``ast.parse`` from the standard ``ast`` module.''',
       author='serge-sans-paille',
       author_email='serge.guelton@telecom-bretagne.eu',
       license="BSD 3-Clause",
