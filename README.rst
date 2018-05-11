@@ -59,9 +59,9 @@ AST Changes
 Python3
 *******
 
-The AST used by GAST is the same as the one used in Python3.5, to the
+The AST used by GAST is the same as the one used in Python3.5, with the
 notable exception of ``ast.arg`` being replaced by ``ast.Name`` with an
-``ast.Param`` context. Addiitonnaly, ``ast.Name`` have an extra ``annotation``
+``ast.Param`` context. Additionally, ``ast.Name`` has an extra ``annotation``
 field.
 
 Python2
