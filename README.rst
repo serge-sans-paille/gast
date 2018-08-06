@@ -43,10 +43,6 @@ Version Compatibility
 GAST is tested using ``tox`` and Travis on the following Python versions:
 
 - 2.7
-- 3.0
-- 3.1
-- 3.2
-- 3.3
 - 3.4
 - 3.5
 - 3.6

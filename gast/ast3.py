@@ -55,33 +55,6 @@ class Ast3ToGAst(AstToGAst):
             ast.copy_location(new_node, node)
             return new_node
 
-    if 2 <= sys.version_info.minor <= 3:
-
-        def _make_annotated_arg(self, parent, identifier, annotation):
-            if identifier is None:
-                return None
-            new_node = gast.Name(
-                self._visit(identifier),
-                gast.Param(),
-                self._visit(annotation),
-            )
-            return ast.copy_location(new_node, parent)
-
-        def visit_arguments(self, node):
-            new_node = gast.arguments(
-                [self._visit(n) for n in node.args],
-                self._make_annotated_arg(node,
-                                         node.vararg,
-                                         self._visit(node.varargannotation)),
-                [self._visit(n) for n in node.kwonlyargs],
-                self._visit(node.kw_defaults),
-                self._make_annotated_arg(node,
-                                         node.kwarg,
-                                         self._visit(node.kwargannotation)),
-                self._visit(node.defaults),
-            )
-            return new_node
-
     if sys.version_info.minor < 6:
 
         def visit_comprehension(self, node):
@@ -162,42 +135,16 @@ class GAstToAst3(GAstToAst):
             )
             return ast.copy_location(new_node, node)
 
-    if 2 <= sys.version_info.minor <= 3:
-
-        def visit_arguments(self, node):
-            if node.vararg is None:
-                vararg = None
-                varargannotation = None
-            else:
-                vararg = node.vararg.id
-                varargannotation = self._visit(node.vararg.annotation)
-            if node.kwarg is None:
-                kwarg = None
-                kwargannotation = None
-            else:
-                kwarg = node.kwarg.id
-                kwargannotation = self._visit(node.kwarg.annotation)
-
-            new_node = ast.arguments(
-                [self._make_arg(n) for n in node.args],
-                vararg, varargannotation,
-                [self._make_arg(n) for n in node.kwonlyargs],
-                kwarg, kwargannotation,
-                self._visit(node.defaults),
-                self._visit(node.kw_defaults),
-            )
-            return new_node
-    else:
-        def visit_arguments(self, node):
-            new_node = ast.arguments(
-                [self._make_arg(n) for n in node.args],
-                self._make_arg(node.vararg),
-                [self._make_arg(n) for n in node.kwonlyargs],
-                self._visit(node.kw_defaults),
-                self._make_arg(node.kwarg),
-                self._visit(node.defaults),
-            )
-            return new_node
+    def visit_arguments(self, node):
+        new_node = ast.arguments(
+            [self._make_arg(n) for n in node.args],
+            self._make_arg(node.vararg),
+            [self._make_arg(n) for n in node.kwonlyargs],
+            self._visit(node.kw_defaults),
+            self._make_arg(node.kwarg),
+            self._visit(node.defaults),
+        )
+        return new_node
 
 
 def ast_to_gast(node):
