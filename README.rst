@@ -128,6 +128,8 @@ ASDL
               | Delete(expr* targets)
               | Assign(expr* targets, expr value)
               | AugAssign(expr target, operator op, expr value)
+              -- 'simple' indicates that we annotate simple name without parens
+              | AnnAssign(expr target, expr annotation, expr? value, int simple)
 
               -- not sure if bool is allowed, can always use int
               | Print(expr? dest, expr* values, bool nl)
