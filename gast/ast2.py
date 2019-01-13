@@ -130,6 +130,12 @@ class Ast2ToGAst(AstToGAst):
 
     # arguments
     def visit_arguments(self, node):
+        if node.vararg:
+            vararg = ast.Name(node.vararg, ast.Param())
+            ast.copy_location(vararg, node)
+        else:
+            vararg = None
+
         if node.kwarg:
             kwarg = ast.Name(node.kwarg, ast.Param())
             ast.copy_location(kwarg, node)
@@ -137,7 +143,7 @@ class Ast2ToGAst(AstToGAst):
             kwarg = None
         new_node = gast.arguments(
             self._visit(node.args),
-            self._visit(node.vararg),
+            self._visit(vararg),
             [],  # kwonlyargs
             [],  # kw_defaults
             self._visit(kwarg),
@@ -249,14 +255,12 @@ class GAstToAst2(GAstToAst):
 
     # arguments
     def visit_arguments(self, node):
-        if node.kwarg:
-            kwarg = node.kwarg.id
-        else:
-            kwarg = None
+        vararg = node.vararg and node.vararg.id
+        kwarg = node.kwarg and node.kwarg.id
 
         new_node = ast.arguments(
             self._visit(node.args),
-            self._visit(node.vararg),
+            self._visit(vararg),
             self._visit(kwarg),
             self._visit(node.defaults),
         )
