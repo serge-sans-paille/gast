@@ -144,6 +144,8 @@ _nodes = {
                      (expr,)),
     'Ellipsis': ((), ('lineno', 'col_offset',),
                  (expr,)),
+    'Constant': (('value',), ('lineno', 'col_offset',),
+                 (expr,)),
     'Attribute': (('value', 'attr', 'ctx',), ('lineno', 'col_offset',),
                   (expr,)),
     'Subscript': (('value', 'slice', 'ctx',), ('lineno', 'col_offset',),

@@ -191,6 +191,7 @@ ASDL
              | Bytes(bytes s)
              | NameConstant(singleton value)
              | Ellipsis
+             | Constant(constant value)
 
              -- the following expression can appear in assignment context
              | Attribute(expr value, identifier attr, expr_context ctx)
