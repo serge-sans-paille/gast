@@ -29,5 +29,7 @@ def _generate_translators(to):
 
     return Translator
 
+
 AstToGAst = _generate_translators(gast)
+
 GAstToAst = _generate_translators(ast)
