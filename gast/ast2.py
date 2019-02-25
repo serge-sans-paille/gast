@@ -130,15 +130,14 @@ class Ast2ToGAst(AstToGAst):
 
     # arguments
     def visit_arguments(self, node):
+        # missing locations for vararg and kwarg set at function level
         if node.vararg:
             vararg = ast.Name(node.vararg, ast.Param())
-            ast.copy_location(vararg, node)
         else:
             vararg = None
 
         if node.kwarg:
             kwarg = ast.Name(node.kwarg, ast.Param())
-            ast.copy_location(kwarg, node)
         else:
             kwarg = None
         new_node = gast.arguments(
@@ -162,6 +161,12 @@ class GAstToAst2(GAstToAst):
             self._visit(node.body),
             self._visit(node.decorator_list),
         )
+        # because node.args doesn't have any location to copy from
+        if node.args.vararg:
+            ast.copy_location(node.args.vararg, node)
+        if node.args.kwarg:
+            ast.copy_location(node.args.kwarg, node)
+
         ast.copy_location(new_node, node)
         return new_node
 
