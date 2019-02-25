@@ -74,6 +74,19 @@ class CompatTestCase(unittest.TestCase):
                 tree = gast.parse(code)
                 compile(gast.gast_to_ast(tree), '<test>', 'exec')
 
+    # common
+    def test_star_argument(self):
+        code = 'def foo(*a): pass'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        gast.dump(tree, include_attributes=True)
+
+    def test_keyword_argument(self):
+        code = 'def foo(**a): pass'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        gast.dump(tree, include_attributes=True)
+
 
 if __name__ == '__main__':
     unittest.main()
