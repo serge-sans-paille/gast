@@ -56,10 +56,12 @@ AST Changes
 Python3
 *******
 
-The AST used by GAST is the same as the one used in Python3.5, with the
-notable exception of ``ast.arg`` being replaced by ``ast.Name`` with an
-``ast.Param`` context. Additionally, ``ast.Name`` has an extra ``annotation``
-field.
+The AST used by GAST is the same as the one used in Python3.8, with the
+notable exception of ``ast.arg`` being replaced by an ``ast.Name`` with an
+``ast.Param`` context.
+
+For minor version before 3.8, please note that ``Num``, ``Str``, ``Bytes`` and
+``NamedConstant`` are represented as ``Constant``.
 
 Python2
 *******
@@ -67,19 +69,22 @@ Python2
 To cope with Python3 features, several nodes from the Python2 AST are extended
 with some new attributes/children.
 
-- ``FunctionDef`` nodes have a ``returns`` attribute.
+- ``ModuleDef`` nodes have a ``type_ignores`` attribute.
+
+- ``FunctionDef`` nodes have a ``returns`` attribute and a ``type_comment``
+  attribute.
 
 - ``ClassDef`` nodes have a ``keywords`` attribute.
 
 - ``With``'s ``context_expr`` and ``optional_vars`` fields are hold in a
   ``withitem`` object.
 
+- ``For`` nodes have a ``type_comment`` attribute.
+
 - ``Raise``'s ``type``, ``inst`` and ``tback`` fields are hold in a single
   ``exc`` field, using the transformation ``raise E, V, T => raise E(V).with_traceback(T)``.
 
 - ``TryExcept`` and ``TryFinally`` nodes are merged in the ``Try`` node.
-
-- ``Name`` nodes have an ``annotation`` attribute.
 
 - ``arguments`` nodes have a ``kwonlyargs`` and ``kw_defaults`` attributes.
 
@@ -91,12 +96,14 @@ with some new attributes/children.
 - ``comprehension`` nodes have an ``async`` attribute (that is always set
   to 0).
 
+- ``Num`` and ``Str`` nodes are represented as ``Constant``.
+
+
 Pit Falls
 *********
 
-- In Python3, ``None``, ``True`` and ``False`` are parsed as ``NamedConstant``
-  while they are parsed as regular ``Name`` in Python2. ``gast`` uses the same
-  convention.
+- In Python3, ``None``, ``True`` and ``False`` are parsed as ``Constant``
+  while they are parsed as regular ``Name`` in Python2.
 
 ASDL
 ****
@@ -107,17 +114,20 @@ ASDL
 
     module Python
     {
-        mod = Module(stmt* body)
+        mod = Module(stmt* body, type_ignore *type_ignores)
             | Interactive(stmt* body)
             | Expression(expr body)
+            | FunctionType(expr* argtypes, expr returns)
 
             -- not really an actual node but useful in Jython's typesystem.
             | Suite(stmt* body)
 
         stmt = FunctionDef(identifier name, arguments args,
-                           stmt* body, expr* decorator_list, expr? returns)
+                           stmt* body, expr* decorator_list, expr? returns,
+                           string? type_comment)
               | AsyncFunctionDef(identifier name, arguments args,
-                                 stmt* body, expr* decorator_list, expr? returns)
+                                 stmt* body, expr* decorator_list, expr? returns,
+                                 string? type_comment)
 
               | ClassDef(identifier name,
                  expr* bases,
@@ -127,7 +137,7 @@ ASDL
               | Return(expr? value)
 
               | Delete(expr* targets)
-              | Assign(expr* targets, expr value)
+              | Assign(expr* targets, expr value, string? type_comment)
               | AugAssign(expr target, operator op, expr value)
               -- 'simple' indicates that we annotate simple name without parens
               | AnnAssign(expr target, expr annotation, expr? value, int simple)
@@ -136,12 +146,12 @@ ASDL
               | Print(expr? dest, expr* values, bool nl)
 
               -- use 'orelse' because else is a keyword in target languages
-              | For(expr target, expr iter, stmt* body, stmt* orelse)
-              | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse)
+              | For(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)
+              | AsyncFor(expr target, expr iter, stmt* body, stmt* orelse, string? type_comment)
               | While(expr test, stmt* body, stmt* orelse)
               | If(expr test, stmt* body, stmt* orelse)
-              | With(withitem* items, stmt* body)
-              | AsyncWith(withitem* items, stmt* body)
+              | With(withitem* items, stmt* body, string? type_comment)
+              | AsyncWith(withitem* items, stmt* body, string? type_comment)
 
               | Raise(expr? exc, expr? cause)
               | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)
@@ -185,20 +195,16 @@ ASDL
              | Compare(expr left, cmpop* ops, expr* comparators)
              | Call(expr func, expr* args, keyword* keywords)
              | Repr(expr value)
-             | Num(object n) -- a number as a PyObject.
-             | Str(string s) -- need to specify raw, unicode, etc?
              | FormattedValue(expr value, int? conversion, expr? format_spec)
              | JoinedStr(expr* values)
-             | Bytes(bytes s)
-             | NameConstant(singleton value)
-             | Ellipsis
-             | Constant(constant value)
+             | Constant(constant value, string? kind)
 
              -- the following expression can appear in assignment context
              | Attribute(expr value, identifier attr, expr_context ctx)
              | Subscript(expr value, slice slice, expr_context ctx)
              | Starred(expr value, expr_context ctx)
-             | Name(identifier id, expr_context ctx, expr? annotation)
+             | Name(identifier id, expr_context ctx, expr? annotation,
+                    string? type_comment)
              | List(expr* elts, expr_context ctx)
              | Tuple(expr* elts, expr_context ctx)
 
@@ -220,13 +226,13 @@ ASDL
 
         cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
 
-        comprehension = (expr target, expr iter, expr* ifs)
+        comprehension = (expr target, expr iter, expr* ifs, int is_async)
 
         excepthandler = ExceptHandler(expr? type, expr? name, stmt* body)
-                        attributes (int lineno, int col_offset)
+                        attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
 
-        arguments = (expr* args, expr? vararg, expr* kwonlyargs, expr* kw_defaults,
-                     expr? kwarg, expr* defaults)
+        arguments = (expr* args, expr* posonlyargs, expr? vararg, expr* kwonlyargs,
+                     expr* kw_defaults, expr? kwarg, expr* defaults)
 
         -- keyword arguments supplied to call (NULL identifier for **kwargs)
         keyword = (identifier? arg, expr value)
@@ -235,4 +241,6 @@ ASDL
         alias = (identifier name, identifier? asname)
 
         withitem = (expr context_expr, expr? optional_vars)
+
+        type_ignore = TypeIgnore(int lineno, string tag)
     }

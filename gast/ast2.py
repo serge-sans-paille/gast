@@ -5,6 +5,14 @@ import gast
 
 class Ast2ToGAst(AstToGAst):
 
+    # mod
+    def visit_Module(self, node):
+        new_node = gast.Module(
+            self._visit(node.body),
+            []  # type_ignores
+        )
+        return new_node
+
     # stmt
     def visit_FunctionDef(self, node):
         new_node = gast.FunctionDef(
@@ -13,8 +21,10 @@ class Ast2ToGAst(AstToGAst):
             self._visit(node.body),
             self._visit(node.decorator_list),
             None,  # returns
+            None,  # type_comment
         )
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_ClassDef(self, node):
@@ -26,7 +36,20 @@ class Ast2ToGAst(AstToGAst):
             self._visit(node.decorator_list),
         )
 
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
+    def visit_For(self, node):
+        new_node = gast.For(
+            self._visit(node.target),
+            self._visit(node.iter),
+            self._visit(node.body),
+            self._visit(node.orelse),
+            []  # type_comment
+        )
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_With(self, node):
@@ -35,9 +58,11 @@ class Ast2ToGAst(AstToGAst):
                 self._visit(node.context_expr),
                 self._visit(node.optional_vars)
             )],
-            self._visit(node.body)
+            self._visit(node.body),
+            None,  # type_comment
         )
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_Raise(self, node):
@@ -49,22 +74,26 @@ class Ast2ToGAst(AstToGAst):
 
         if ninst is not None:
             what = gast.Call(ntype, [ninst], [])
-            ast.copy_location(what, node)
+            gast.copy_location(what, node)
+            what.end_lineno = what.end_col_offset = None
 
         if ntback is not None:
             attr = gast.Attribute(what, 'with_traceback', gast.Load())
-            ast.copy_location(attr, node)
+            gast.copy_location(attr, node)
+            attr.end_lineno = attr.end_col_offset = None
 
             what = gast.Call(
                 attr,
                 [ntback],
                 []
             )
-            ast.copy_location(what, node)
+            gast.copy_location(what, node)
+            what.end_lineno = what.end_col_offset = None
 
         new_node = gast.Raise(what, None)
 
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_TryExcept(self, node):
@@ -74,7 +103,8 @@ class Ast2ToGAst(AstToGAst):
             self._visit(node.orelse),
             []  # finalbody
         )
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_TryFinally(self, node):
@@ -84,7 +114,8 @@ class Ast2ToGAst(AstToGAst):
             [],  # orelse
             self._visit(node.finalbody)
         )
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     # expr
@@ -94,14 +125,35 @@ class Ast2ToGAst(AstToGAst):
             self._visit(node.id),
             self._visit(node.ctx),
             None,
+            None,
         )
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
+    def visit_Num(self, node):
+        new_node = gast.Constant(
+            node.n,
+            None,
+        )
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
+    def visit_Str(self, node):
+        new_node = gast.Constant(
+            node.s,
+            None,
+        )
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_Call(self, node):
         if node.starargs:
             star = gast.Starred(self._visit(node.starargs), gast.Load())
-            ast.copy_location(star, node)
+            gast.copy_location(star, node)
+            star.end_lineno = star.end_col_offset = None
             starred = [star]
         else:
             starred = []
@@ -116,7 +168,8 @@ class Ast2ToGAst(AstToGAst):
             self._visit(node.args) + starred,
             self._visit(node.keywords) + kwargs,
         )
-        ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
     def visit_comprehension(self, node):
@@ -126,7 +179,9 @@ class Ast2ToGAst(AstToGAst):
             ifs=self._visit(node.ifs),
             is_async=0,
         )
-        return ast.copy_location(new_node, node)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
 
     # arguments
     def visit_arguments(self, node):
@@ -140,8 +195,15 @@ class Ast2ToGAst(AstToGAst):
             kwarg = ast.Name(node.kwarg, ast.Param())
         else:
             kwarg = None
+
+        if node.vararg:
+            vararg = ast.Name(node.vararg, ast.Param())
+        else:
+            vararg = None
+
         new_node = gast.arguments(
             self._visit(node.args),
+            [],  # posonlyargs
             self._visit(vararg),
             [],  # kwonlyargs
             [],  # kw_defaults
@@ -152,6 +214,11 @@ class Ast2ToGAst(AstToGAst):
 
 
 class GAstToAst2(GAstToAst):
+
+    # mod
+    def visit_Module(self, node):
+        new_node = ast.Module(self._visit(node.body))
+        return new_node
 
     # stmt
     def visit_FunctionDef(self, node):
@@ -176,6 +243,17 @@ class GAstToAst2(GAstToAst):
             self._visit(node.bases),
             self._visit(node.body),
             self._visit(node.decorator_list),
+        )
+
+        ast.copy_location(new_node, node)
+        return new_node
+
+    def visit_For(self, node):
+        new_node = ast.For(
+            self._visit(node.target),
+            self._visit(node.iter),
+            self._visit(node.body),
+            self._visit(node.orelse),
         )
 
         ast.copy_location(new_node, node)
@@ -225,6 +303,14 @@ class GAstToAst2(GAstToAst):
             self._visit(node.id),
             self._visit(node.ctx),
         )
+        ast.copy_location(new_node, node)
+        return new_node
+
+    def visit_Constant(self, node):
+        if isinstance(node.value, (bool, int, long, float)):
+            new_node = ast.Num(node.value)
+        else:
+            new_node = ast.Str(node.value)
         ast.copy_location(new_node, node)
         return new_node
 
