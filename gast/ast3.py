@@ -211,7 +211,7 @@ class GAstToAst3(GAstToAst):
                 new_node = ast.NameConstant(node.value)
             elif isinstance(node.value, bool):
                 new_node = ast.NameConstant(node.value)
-            elif isinstance(node.value, (int, float)):
+            elif isinstance(node.value, (int, float, complex)):
                 new_node = ast.Num(node.value)
             elif isinstance(node.value, str):
                 new_node = ast.Str(node.value)

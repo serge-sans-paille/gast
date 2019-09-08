@@ -307,7 +307,7 @@ class GAstToAst2(GAstToAst):
         return new_node
 
     def visit_Constant(self, node):
-        if isinstance(node.value, (bool, int, long, float)):
+        if isinstance(node.value, (bool, int, long, float, complex)):
             new_node = ast.Num(node.value)
         else:
             new_node = ast.Str(node.value)
