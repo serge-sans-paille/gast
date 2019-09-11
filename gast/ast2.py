@@ -140,6 +140,44 @@ class Ast2ToGAst(AstToGAst):
         new_node.end_lineno = new_node.end_col_offset = None
         return new_node
 
+    def visit_Subscript(self, node):
+        new_slice = self._visit(node.slice)
+        if isinstance(node.slice, ast.Ellipsis):
+            new_slice = gast.Index(new_slice)
+
+        new_node = gast.Subscript(
+            self._visit(node.value),
+            new_slice,
+            self._visit(node.ctx),
+        )
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
+    def visit_Ellipsis(self, node):
+        new_node = gast.Constant(
+            Ellipsis,
+            None,
+        )
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
+    def visit_ExtSlice(self, node):
+        has_ellipsis = any(isinstance(d, ast.Ellipsis) for d in node.dims)
+        has_slice = any(isinstance(d, ast.Slice) for d in node.dims)
+        new_dims = self._visit(node.dims)
+        if has_ellipsis and not has_slice:
+            new_dims = [nd.value if isinstance(nd, gast.Index) else nd
+                        for nd in new_dims]
+            new_node = gast.Index(gast.Tuple(new_dims,
+                                             gast.Load()))
+        else:
+            new_node = gast.ExtSlice(new_dims)
+        gast.copy_location(new_node, node)
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
     def visit_Str(self, node):
         new_node = gast.Constant(
             node.s,
@@ -309,8 +347,27 @@ class GAstToAst2(GAstToAst):
     def visit_Constant(self, node):
         if isinstance(node.value, (bool, int, long, float, complex)):
             new_node = ast.Num(node.value)
+        elif node.value is Ellipsis:
+            new_node = ast.Ellipsis()
         else:
             new_node = ast.Str(node.value)
+        ast.copy_location(new_node, node)
+        return new_node
+
+    def visit_Index(self, node):
+        new_value = self._visit(node.value)
+        if isinstance(new_value, ast.Ellipsis):
+            new_node = new_value
+        elif isinstance(new_value, ast.Tuple):
+            if any(isinstance(elt, ast.Ellipsis) for elt in new_value.elts):
+                new_elts = [elt if isinstance(elt, (ast.Ellipsis, ast.Slice))
+                            else ast.Index(elt)
+                            for elt in new_value.elts]
+                new_node = ast.ExtSlice(new_elts)
+            else:
+                new_node = ast.Index(new_value)
+        else:
+            new_node = ast.Index(new_value)
         ast.copy_location(new_node, node)
         return new_node
 
