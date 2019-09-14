@@ -60,14 +60,14 @@ The AST used by GAST is the same as the one used in Python3.8, with the
 notable exception of ``ast.arg`` being replaced by an ``ast.Name`` with an
 ``ast.Param`` context.
 
-For minor version before 3.8, please note that ``Num``, ``Str``, ``Bytes`` and
-``NamedConstant`` are represented as ``Constant``.
+For minor version before 3.8, please note that ``Ellipsis``, ``Num``, ``Str``,
+``Bytes`` and ``NamedConstant`` are represented as ``Constant``.
 
 Python2
 *******
 
 To cope with Python3 features, several nodes from the Python2 AST are extended
-with some new attributes/children.
+with some new attributes/children, or represented by different nodes
 
 - ``ModuleDef`` nodes have a ``type_ignores`` attribute.
 
@@ -96,7 +96,11 @@ with some new attributes/children.
 - ``comprehension`` nodes have an ``async`` attribute (that is always set
   to 0).
 
-- ``Num`` and ``Str`` nodes are represented as ``Constant``.
+- ``Ellipsis``, ``Num`` and ``Str`` nodes are represented as ``Constant``.
+
+- ``Subscript`` which don't have any ``Slice`` node as ``slice`` attribute (and
+  ``Ellipsis`` are not ``Slice`` nodes) no longer hold an ``ExtSlice`` but an
+  ``Index(Tuple(...))`` instead.
 
 
 Pit Falls

@@ -22,6 +22,15 @@ class Ast3ToGAst(AstToGAst):
             gast.copy_location(new_node, node)
             return new_node
 
+        def visit_Ellipsis(self, node):
+            new_node = gast.Constant(
+                Ellipsis,
+                None,
+            )
+            gast.copy_location(new_node, node)
+            new_node.end_lineno = new_node.end_col_offset = None
+            return new_node
+
         def visit_Str(self, node):
             new_node = gast.Constant(
                 node.s,
@@ -209,6 +218,8 @@ class GAstToAst3(GAstToAst):
         def visit_Constant(self, node):
             if node.value is None:
                 new_node = ast.NameConstant(node.value)
+            elif node.value is Ellipsis:
+                new_node = ast.Ellipsis()
             elif isinstance(node.value, bool):
                 new_node = ast.NameConstant(node.value)
             elif isinstance(node.value, (int, float, complex)):

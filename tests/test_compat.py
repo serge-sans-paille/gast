@@ -229,6 +229,81 @@ class CompatTestCase(unittest.TestCase):
                 "type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
+    def test_Index(self):
+        code = 'def foo(a): a[1]'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        norm = ("Module(body=[FunctionDef(name='foo', args=arguments(args=["
+                "Name(id='a', ctx=Param(), annotation=None, type_comment=None)"
+                "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
+                ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
+                "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
+                ", slice=Index(value=Constant(value=1, kind=None)), ctx=Load()"
+                "))], decorator_list=[], returns=None, type_comment=None)]"
+                ", type_ignores=[])")
+        self.assertEqual(gast.dump(tree), norm)
+
+    def test_ExtSlice(self):
+        code = 'def foo(a): a[:,:]'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        norm = ("Module(body=[FunctionDef(name='foo', args=arguments(args=["
+                "Name(id='a', ctx=Param(), annotation=None, type_comment=None)"
+                "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
+                ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
+                "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
+                ", slice=ExtSlice(dims=[Slice(lower=None, upper=None, step="
+                "None), Slice(lower=None, upper=None, step=None)]), ctx=Load()"
+                "))], decorator_list=[], returns=None, type_comment=None)], "
+                "type_ignores=[])")
+        self.assertEqual(gast.dump(tree), norm)
+
+    def test_ExtSlices(self):
+        code = 'def foo(a): a[1,:]'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        norm = ("Module(body=[FunctionDef(name='foo', args=arguments(args=["
+                "Name(id='a', ctx=Param(), annotation=None, type_comment=None)"
+                "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
+                ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
+                "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
+                ", slice=ExtSlice(dims=[Index(value=Constant(value=1, kind="
+                "None)), Slice(lower=None, upper=None, step=None)]), ctx=Load"
+                "()))], decorator_list=[], returns=None, type_comment=None)]"
+                ", type_ignores=[])")
+        self.assertEqual(gast.dump(tree), norm)
+
+    def test_Ellipsis(self):
+        self.maxDiff = None
+        code = 'def foo(a): a[...]'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        norm = ("Module(body=[FunctionDef(name='foo', args=arguments(args=["
+                "Name(id='a', ctx=Param(), annotation=None, type_comment=None)"
+                "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
+                ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
+                "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
+                ", slice=Index(value=Constant(value=Ellipsis, kind=None)), ctx"
+                "=Load()))], decorator_list=[], returns=None, type_comment="
+                "None)], type_ignores=[])")
+        self.assertEqual(gast.dump(tree), norm)
+
+    def test_ExtSliceEllipsis(self):
+        self.maxDiff = None
+        code = 'def foo(a): a[1, ...]'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        norm = ("Module(body=[FunctionDef(name='foo', args=arguments(args=["
+                "Name(id='a', ctx=Param(), annotation=None, type_comment=None)"
+                "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
+                ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
+                "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
+                ", slice=Index(value=Tuple(elts=[Constant(value=1, kind=None)"
+                ", Constant(value=Ellipsis, kind=None)], ctx=Load())), ctx="
+                "Load()))], decorator_list=[], returns=None, type_comment="
+                "None)], type_ignores=[])")
+        self.assertEqual(gast.dump(tree), norm)
+
 
 if __name__ == '__main__':
     unittest.main()
