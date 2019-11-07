@@ -47,6 +47,7 @@ GAST is tested using ``tox`` and Travis on the following Python versions:
 - 3.5
 - 3.6
 - 3.7
+- 3.8
 
 
 AST Changes
