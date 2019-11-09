@@ -121,6 +121,12 @@ def foo(x=1, *args, **kwargs):
 
         self.assertEqual(vis.state, [6])
 
+    def test_node_expander(self):
+        node = gast.Constant(value=6, kind=None)
+        tree = gast.UnaryOp(gast.USub(), node)
+        expanded = list(gast.expand(tree))
+        self.assertEqual(len(expanded), 2)
+        self.assertEqual(expanded[1], node)
 
 if __name__ == '__main__':
     unittest.main()

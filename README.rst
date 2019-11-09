@@ -26,7 +26,7 @@ API
 from the ``ast`` module are also available in the ``gast`` module, and work
 accordingly on the ``gast`` tree.
 
-Three notable exceptions:
+Four notable exceptions:
 
 1. ``gast.parse`` directly produces a GAST node. It's equivalent to running
        ``gast.ast_to_gast`` on the output of ``ast.parse``.
@@ -36,6 +36,9 @@ Three notable exceptions:
 
 3. ``gast.gast_to_ast`` and ``gast.ast_to_gast`` can be used to convert
        from one ast to the other, back and forth.
+
+4. ``gast.expand`` expands a given GAST node to its direct children. It
+       provides an alternative mechanism for implementing visitors.
 
 Version Compatibility
 ---------------------
