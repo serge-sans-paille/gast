@@ -382,12 +382,16 @@ class GAstToAst3(GAstToAst):
                       self._make_arg(node.kwarg),
                       self._visit(node.defaults), ]
         if sys.version_info.minor >= 8:
-            extra_args.insert(0, [self._make_arg(arg) for arg in
-                                  node.posonlyargs])
-        new_node = ast.arguments(
-            [self._make_arg(n) for n in node.args],
-            *extra_args
-        )
+            new_node = ast.arguments(
+                [self._make_arg(arg) for arg in node.posonlyargs],
+                [self._make_arg(n) for n in node.args],
+                *extra_args
+            )
+        else:
+            new_node = ast.arguments(
+                [self._make_arg(n) for n in node.args],
+                *extra_args
+            )
         return new_node
 
 

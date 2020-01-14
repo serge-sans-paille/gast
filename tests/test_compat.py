@@ -96,6 +96,20 @@ class CompatTestCase(unittest.TestCase):
                         "[TypeIgnore(lineno=1, tag='[excuse]')])")
                 self.assertEqual(gast.dump(tree), norm)
 
+            def test_PosonlyArgs(self):
+                code = 'def foo(a, /, b): pass'
+                tree = gast.parse(code, type_comments=True)
+                compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                norm = ("Module(body=[FunctionDef(name='foo', args=arguments("
+                        "args=[Name(id='b', ctx=Param(), annotation=None, "
+                        "type_comment=None)], posonlyargs=[Name(id='a', "
+                        "ctx=Param(), annotation=None, type_comment=None)], "
+                        "vararg=None, kwonlyargs=[], kw_defaults=[], "
+                        "kwarg=None, defaults=[]), body=[Pass()], "
+                        "decorator_list=[], returns=None, type_comment=None)"
+                        "], type_ignores=[])")
+                self.assertEqual(gast.dump(tree), norm)
+
         else:
 
             def test_Bytes(self):
