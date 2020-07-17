@@ -218,9 +218,9 @@ _nodes = (
     ('Param', ((), (), (expr_context,))),
 
     # slice
-    ('Slice', (('lower', 'upper', 'step'), (), (slice,))),
-    ('ExtSlice', (('dims',), (), (slice,))),
-    ('Index', (('value',), (), (slice,))),
+    ('Slice', (('lower', 'upper', 'step'),
+               ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
+               (slice,))),
 
     # boolop
     ('And', ((), (), (boolop,))),
@@ -273,7 +273,9 @@ _nodes = (
                     'kw_defaults', 'kwarg', 'defaults'), (), (AST,))),
 
     # keyword
-    ('keyword', (('arg', 'value'), (), (AST,))),
+    ('keyword', (('arg', 'value'),
+                 ('lineno', 'col_offset', 'end_lineno', 'end_col_offset'),
+                 (AST,))),
 
     # alias
     ('alias', (('name', 'asname'), (), (AST,))),
@@ -374,7 +376,7 @@ def increment_lineno(node, n=1):
     """
     for child in walk(node):
         if 'lineno' in child._attributes:
-            child.lineno = getattr(child, 'lineno', 0) + n
+            child.lineno = (getattr(child, 'lineno', 0) or 0) + n
         if 'end_lineno' in child._attributes:
-            child.end_lineno = getattr(child, 'end_lineno', 0) + n
+            child.end_lineno = (getattr(child, 'end_lineno', 0) or 0) + n
     return node

@@ -5,6 +5,15 @@ import sys
 
 
 class Ast3ToGAst(AstToGAst):
+    if sys.version_info.minor < 9:
+
+        def visit_ExtSlice(self, node):
+            new_node = gast.Tuple(self._visit(node.dims), gast.Load())
+            gast.copy_location(new_node, node)
+            return new_node
+
+        def visit_Index(self, node):
+            return self._visit(node.value)
 
     if sys.version_info.minor < 8:
         def visit_Module(self, node):
@@ -122,7 +131,9 @@ class Ast3ToGAst(AstToGAst):
                     starred = []
 
                 if node.kwargs:
-                    kwargs = [gast.keyword(None, self._visit(node.kwargs))]
+                    kw = gast.keyword(None, self._visit(node.kwargs))
+                    gast.copy_location(kw, node.kwargs)
+                    kwargs = [kw]
                 else:
                     kwargs = []
             else:
@@ -208,6 +219,33 @@ class Ast3ToGAst(AstToGAst):
 
 
 class GAstToAst3(GAstToAst):
+    if sys.version_info.minor < 9:
+        def visit_Subscript(self, node):
+            def adjust_slice(s):
+                if isinstance(s, ast.Slice):
+                    return s
+                else:
+                    return ast.Index(s)
+            if isinstance(node.slice, gast.Tuple):
+                if any(isinstance(elt, gast.slice) for elt in node.slice.elts):
+                    new_slice = ast.ExtSlice(
+                        [adjust_slice(x) for x in
+                         self._visit(node.slice.elts)])
+                else:
+                    value = ast.Tuple(self._visit(node.slice.elts), ast.Load())
+                    ast.copy_location(value, node.slice)
+                    new_slice = ast.Index(value)
+            else:
+                new_slice = adjust_slice(self._visit(node.slice))
+            ast.copy_location(new_slice, node.slice)
+
+            new_node = ast.Subscript(
+                self._visit(node.value),
+                new_slice,
+                self._visit(node.ctx),
+            )
+            ast.copy_location(new_node, node)
+            return new_node
 
     if sys.version_info.minor < 8:
 
