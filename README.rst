@@ -57,9 +57,12 @@ AST Changes
 Python3
 *******
 
-The AST used by GAST is the same as the one used in Python3.8, with the
+The AST used by GAST is the same as the one used in Python3.9, with the
 notable exception of ``ast.arg`` being replaced by an ``ast.Name`` with an
 ``ast.Param`` context.
+
+For minor version before 3.9, please note that ``ExtSlice`` and ``Index`` are
+not used.
 
 For minor version before 3.8, please note that ``Ellipsis``, ``Num``, ``Str``,
 ``Bytes`` and ``NamedConstant`` are represented as ``Constant``.

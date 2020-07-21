@@ -252,12 +252,13 @@ class CompatTestCase(unittest.TestCase):
                 "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
-                ", slice=Index(value=Constant(value=1, kind=None)), ctx=Load()"
+                ", slice=Constant(value=1, kind=None), ctx=Load()"
                 "))], decorator_list=[], returns=None, type_comment=None)]"
                 ", type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_ExtSlice(self):
+        self.maxDiff = None
         code = 'def foo(a): a[:,:]'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -266,13 +267,14 @@ class CompatTestCase(unittest.TestCase):
                 "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
-                ", slice=ExtSlice(dims=[Slice(lower=None, upper=None, step="
-                "None), Slice(lower=None, upper=None, step=None)]), ctx=Load()"
-                "))], decorator_list=[], returns=None, type_comment=None)], "
-                "type_ignores=[])")
+                ", slice=Tuple(elts=[Slice(lower=None, upper=None, step="
+                "None), Slice(lower=None, upper=None, step=None)], ctx=Load())"
+                ", ctx=Load()))], decorator_list=[], returns=None, "
+                "type_comment=None)], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_ExtSlices(self):
+        self.maxDiff = None
         code = 'def foo(a): a[1,:]'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -281,10 +283,10 @@ class CompatTestCase(unittest.TestCase):
                 "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
-                ", slice=ExtSlice(dims=[Index(value=Constant(value=1, kind="
-                "None)), Slice(lower=None, upper=None, step=None)]), ctx=Load"
-                "()))], decorator_list=[], returns=None, type_comment=None)]"
-                ", type_ignores=[])")
+                ", slice=Tuple(elts=[Constant(value=1, kind="
+                "None), Slice(lower=None, upper=None, step=None)], ctx=Load())"
+                ", ctx=Load()))], decorator_list=[], returns=None, "
+                "type_comment=None)], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_Ellipsis(self):
@@ -297,8 +299,8 @@ class CompatTestCase(unittest.TestCase):
                 "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
-                ", slice=Index(value=Constant(value=Ellipsis, kind=None)), ctx"
-                "=Load()))], decorator_list=[], returns=None, type_comment="
+                ", slice=Constant(value=Ellipsis, kind=None), ctx=Load()))], "
+                "decorator_list=[], returns=None, type_comment="
                 "None)], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
@@ -312,8 +314,8 @@ class CompatTestCase(unittest.TestCase):
                 "], posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[]"
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
-                ", slice=Index(value=Tuple(elts=[Constant(value=1, kind=None)"
-                ", Constant(value=Ellipsis, kind=None)], ctx=Load())), ctx="
+                ", slice=Tuple(elts=[Constant(value=1, kind=None)"
+                ", Constant(value=Ellipsis, kind=None)], ctx=Load()), ctx="
                 "Load()))], decorator_list=[], returns=None, type_comment="
                 "None)], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
