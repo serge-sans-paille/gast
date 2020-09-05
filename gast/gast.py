@@ -61,7 +61,7 @@ _nodes = (
     ('Delete', (('targets',),
                 ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
                 (stmt,))),
-    ('Assign', (('targets', 'value',),
+    ('Assign', (('targets', 'value', 'type_comment'),
                 ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
                 (stmt,))),
     ('AugAssign', (('target', 'op', 'value',),
