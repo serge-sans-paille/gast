@@ -15,6 +15,17 @@ class Ast3ToGAst(AstToGAst):
         def visit_Index(self, node):
             return self._visit(node.value)
 
+        def visit_Assign(self, node):
+            new_node = gast.Assign(
+                self._visit(node.targets),
+                self._visit(node.value),
+                None,  # type_comment
+            )
+
+            gast.copy_location(new_node, node)
+            new_node.end_lineno = new_node.end_col_offset = None
+            return new_node
+
     if sys.version_info.minor < 8:
         def visit_Module(self, node):
             new_node = gast.Module(
@@ -246,6 +257,15 @@ class GAstToAst3(GAstToAst):
             )
             ast.copy_location(new_node, node)
             return new_node
+
+    def visit_Assign(self, node):
+        new_node = ast.Assign(
+            self._visit(node.targets),
+            self._visit(node.value),
+        )
+
+        ast.copy_location(new_node, node)
+        return new_node
 
     if sys.version_info.minor < 8:
 

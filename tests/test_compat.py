@@ -61,7 +61,8 @@ class CompatTestCase(unittest.TestCase):
                 compile(gast.gast_to_ast(tree), '<test>', 'exec')
                 norm = ("Module(body=[Assign(targets=[Name(id='e', ctx=Store()"
                         ", annotation=None, type_comment=None"
-                        ")], value=Constant(value=1, kind=None)), Expr(value="
+                        ")], value=Constant(value=1, kind=None), "
+                        "type_comment=None), Expr(value="
                         "JoinedStr(values=[FormattedValue(value=Name(id='e', "
                         "ctx=Load(), annotation=None, type_comment=None), "
                         "conversion=-1, format_spec=None)]))], "
@@ -74,7 +75,8 @@ class CompatTestCase(unittest.TestCase):
                 compile(gast.gast_to_ast(tree), '<test>', 'exec')
                 norm = ("Module(body=[Assign(targets=[Name(id='e', ctx=Store()"
                         ", annotation=None, type_comment=None"
-                        ")], value=Constant(value=1, kind=None)), Expr(value="
+                        ")], value=Constant(value=1, kind=None), "
+                        "type_comment=None), Expr(value="
                         "JoinedStr(values=[Constant(value='e = ', kind=None), "
                         "FormattedValue(value=Name(id='e', ctx=Load(), "
                         "annotation=None, type_comment=None), "
