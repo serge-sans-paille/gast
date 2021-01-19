@@ -12,25 +12,27 @@ except ImportError:
 
 
 def _make_node(Name, Fields, Attributes, Bases):
+    NBFields = len(Fields)
+
     def create_node(self, *args, **kwargs):
-        nbparam = len(args) + len(kwargs)
-        assert nbparam in (0, len(Fields)), \
-            "Bad argument number for {}: {}, expecting {}".\
-            format(Name, nbparam, len(Fields))
-        self._fields = Fields
-        self._attributes = Attributes
-        for argname, argval in zip(self._fields, args):
-            setattr(self, argname, argval)
-        for argname, argval in kwargs.items():
-            assert argname in Fields, \
-                    "Invalid Keyword argument for {}: {}".format(Name, argname)
-            setattr(self, argname, argval)
+        if args:
+            if len(args) != NBFields:
+                raise TypeError(
+                    "{} constructor takes either 0 or {} positional arguments".
+                    format(Name, NBFields))
+            for argname, argval in zip(Fields, args):
+                setattr(self, argname, argval)
+        if kwargs:
+            for argname, argval in kwargs.items():
+                setattr(self, argname, argval)
 
     setattr(_sys.modules[__name__],
             Name,
             type(Name,
                  Bases,
-                 {'__init__': create_node}))
+                 {'__init__': create_node,
+                  '_fields': Fields,
+                  '_attributes': Attributes}))
 
 
 _nodes = (
