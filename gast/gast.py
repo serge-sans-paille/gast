@@ -278,7 +278,9 @@ _nodes = (
                  (AST,))),
 
     # alias
-    ('alias', (('name', 'asname'), (), (AST,))),
+    ('alias', (('name', 'asname'),
+               ('lineno', 'col_offset', 'end_lineno', 'end_col_offset'),
+               (AST,))),
 
     # withitem
     ('withitem', (('context_expr', 'optional_vars'), (), (AST,))),
