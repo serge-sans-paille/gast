@@ -49,6 +49,7 @@ GAST is tested using ``tox`` and Travis on the following Python versions:
 - 3.7
 - 3.8
 - 3.9
+- 3.10
 
 
 AST Changes
@@ -248,6 +249,7 @@ ASDL
 
         -- import name with optional 'as' alias.
         alias = (identifier name, identifier? asname)
+                attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
 
         withitem = (expr context_expr, expr? optional_vars)
 

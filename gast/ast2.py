@@ -253,6 +253,15 @@ class Ast2ToGAst(AstToGAst):
         )
         return new_node
 
+    def visit_alias(self, node):
+        new_node = gast.alias(
+            self._visit(node.name),
+            self._visit(node.asname),
+        )
+        new_node.lineno = new_node.col_offset = None
+        new_node.end_lineno = new_node.end_col_offset = None
+        return new_node
+
 
 class GAstToAst2(GAstToAst):
 
@@ -428,6 +437,13 @@ class GAstToAst2(GAstToAst):
             self._visit(vararg),
             self._visit(kwarg),
             self._visit(node.defaults),
+        )
+        return new_node
+
+    def visit_alias(self, node):
+        new_node = ast.alias(
+            self._visit(node.name),
+            self._visit(node.asname)
         )
         return new_node
 

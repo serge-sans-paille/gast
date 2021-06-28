@@ -5,6 +5,17 @@ import sys
 
 
 class Ast3ToGAst(AstToGAst):
+    if sys.version_info.minor < 10:
+
+        def visit_alias(self, node):
+            new_node = gast.alias(
+                self._visit(node.name),
+                self._visit(node.asname),
+            )
+            new_node.lineno = new_node.col_offset = None
+            new_node.end_lineno = new_node.end_col_offset = None
+            return new_node
+
     if sys.version_info.minor < 9:
 
         def visit_ExtSlice(self, node):
@@ -230,6 +241,14 @@ class Ast3ToGAst(AstToGAst):
 
 
 class GAstToAst3(GAstToAst):
+    if sys.version_info.minor < 10:
+        def visit_alias(self, node):
+            new_node = ast.alias(
+                self._visit(node.name),
+                self._visit(node.asname)
+            )
+            return new_node
+
     if sys.version_info.minor < 9:
         def visit_Subscript(self, node):
             def adjust_slice(s):
