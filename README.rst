@@ -186,6 +186,7 @@ ASDL
 
               -- BoolOp() can use left & right?
         expr = BoolOp(boolop op, expr* values)
+             | NamedExpr(expr target, expr value)
              | BinOp(expr left, operator op, expr right)
              | UnaryOp(unaryop op, expr operand)
              | Lambda(arguments args, expr body)
