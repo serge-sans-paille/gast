@@ -112,6 +112,16 @@ class CompatTestCase(unittest.TestCase):
                         "], type_ignores=[])")
                 self.assertEqual(gast.dump(tree), norm)
 
+            def test_NamedExpr(self):
+                code = '(x := 1) '
+                tree = gast.parse(code)
+                compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                norm = ("Module(body=[Expr(value=NamedExpr(target=Name(id='x',"
+                        " ctx=Store(), annotation=None, type_comment=None), "
+                        "value=Constant(value=1, kind=None)))], type_ignores="
+                        "[])")
+                self.assertEqual(gast.dump(tree), norm)
+
         else:
 
             def test_Bytes(self):
