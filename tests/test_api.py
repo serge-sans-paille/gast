@@ -121,6 +121,16 @@ def foo(x=1, *args, **kwargs):
 
         self.assertEqual(vis.state, [6])
 
+    def test_NodeConstructor(self):
+        node0 = gast.Name()
+        load = gast.Load()
+        node1 = gast.Name('id', load, None, None)
+        node2 = gast.Name('id', load, None, type_comment=None)
+        with self.assertRaises(TypeError):
+            node1 = gast.Name('id')
+        for field in gast.Name._fields:
+            self.assertEqual(getattr(node1, field), getattr(node2, field))
+
 
 if __name__ == '__main__':
     unittest.main()

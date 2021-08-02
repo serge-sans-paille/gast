@@ -16,9 +16,9 @@ def _make_node(Name, Fields, Attributes, Bases):
 
     def create_node(self, *args, **kwargs):
         if args:
-            if len(args) != NBFields:
+            if len(args) + len([k for k in kwargs if k in Fields]) != NBFields:
                 raise TypeError(
-                    "{} constructor takes either 0 or {} positional arguments".
+                    "{} constructor takes either 0 or {} mandatory arguments".
                     format(Name, NBFields))
             for argname, argval in zip(Fields, args):
                 setattr(self, argname, argval)
