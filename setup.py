@@ -9,8 +9,13 @@ except ImportError:
     from distutils.core import setup
     kw = {}
 
+import os
+
+versionfile = os.path.join('gast', 'version.py')
+exec(open(versionfile).read())
+
 setup(name='gast',  # gast, daou naer!
-      version='0.5.2',
+      version=__version__,
       packages=['gast'],
       description='Python AST that abstracts the underlying Python version',
       long_description='''
