@@ -2,8 +2,6 @@ import glob
 import os
 import unittest
 
-import astunparse
-
 import gast
 
 
@@ -30,7 +28,7 @@ class SelfTestCase(unittest.TestCase):
             with open(src_py) as f:
                 content = f.read()
             gnode = gast.parse(content)
-            astunparse.unparse(gast.gast_to_ast(gnode))
+            gast.unparse(gnode)
 
 
 if __name__ == '__main__':
