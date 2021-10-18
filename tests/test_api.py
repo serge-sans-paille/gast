@@ -25,6 +25,11 @@ def foo(x=1, *args, **kwargs):
         '''
         gast.parse(code)
 
+    def test_unparse(self):
+        code = 'def foo(x=1): return x'
+        self.assertEqual(gast.unparse(gast.parse(code)),
+                         'def foo(x=1):\n    return x')
+
     def test_dump(self):
         code = 'lambda x: x'
         tree = gast.parse(code, mode='eval')

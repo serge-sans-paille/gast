@@ -3,7 +3,6 @@ try:
     from setuptools import setup
     kw = {
         'test_suite': 'tests',
-        'tests_require': ['astunparse'],
     }
 except ImportError:
     from distutils.core import setup
