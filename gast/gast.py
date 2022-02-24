@@ -308,7 +308,7 @@ def parse(*args, **kwargs):
 
 
 def unparse(gast_obj):
-    from gast.unparser import unparse
+    from .unparser import unparse
     return unparse(gast_obj)
 
 
