@@ -122,6 +122,112 @@ class CompatTestCase(unittest.TestCase):
                         "[])")
                 self.assertEqual(gast.dump(tree), norm)
 
+            if sys.version_info.minor >= 10:
+
+                def test_MatchValue(self):
+                    code = 'match v:\n  case "hello":...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases="
+                            "[match_case(pattern=MatchValue(value=Constant("
+                            "value='hello', kind=None)), guard=None, body="
+                            "[Expr(value=Constant(value=Ellipsis, kind=None))]"
+                            ")])], type_ignores=[])"
+                            )
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchSingleton(self):
+                    self.maxDiff = None
+                    code = 'match v:\n  case None:...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases=["
+                            "match_case(pattern=MatchSingleton(value=None), "
+                            "guard=None, body=[Expr(value=Constant(value="
+                            "Ellipsis, kind=None))])])], type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchSequence(self):
+                    code = 'match v:\n  case a, b:...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases="
+                            "[match_case(pattern=MatchSequence(patterns=["
+                            "MatchAs(pattern=None, name='a'), MatchAs(pattern"
+                            "=None, name='b')]), guard=None, body=[Expr(value"
+                            "=Constant(value=Ellipsis, kind=None))])])], "
+                            "type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchMapping(self):
+                    code = 'match v:\n  case {1: a}:...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases=["
+                            "match_case(pattern=MatchMapping(keys=[Constant("
+                            "value=1, kind=None)], patterns=[MatchAs(pattern"
+                            "=None, name='a')], rest=None), guard=None, body="
+                            "[Expr(value=Constant(value=Ellipsis, kind=None))]"
+                            ")])], type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchClass(self):
+                    code = 'match v:\n  case Cls(attr=1):...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases=["
+                            "match_case(pattern=MatchClass(cls=Name(id='Cls'"
+                            ", ctx=Load(), annotation=None, type_comment=None"
+                            "), patterns=[], kwd_attrs=['attr'], kwd_patterns"
+                            "=[MatchValue(value=Constant(value=1, kind=None))"
+                            "]), guard=None, body=[Expr(value=Constant(value="
+                            "Ellipsis, kind=None))])])], type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchStar(self):
+                    code = 'match v:\n  case [1, *other]:...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases=["
+                            "match_case(pattern=MatchSequence(patterns=["
+                            "MatchValue(value=Constant(value=1, kind=None)), "
+                            "MatchStar(name='other')]), guard=None, body="
+                            "[Expr(value=Constant(value=Ellipsis, kind=None)"
+                            ")])])], type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchAs(self):
+                    code = 'match v:\n  case 1, other:...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases=["
+                            "match_case(pattern=MatchSequence(patterns=["
+                            "MatchValue(value=Constant(value=1, kind=None)), "
+                            "MatchAs(pattern=None, name='other')]), guard=None"
+                            ", body=[Expr(value=Constant(value=Ellipsis, kind"
+                            "=None))])])], type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
+                def test_MatchOr(self):
+                    code = 'match v:\n  case 1 | 2:...'
+                    tree = gast.parse(code)
+                    compile(gast.gast_to_ast(tree), '<test>', 'exec')
+                    norm = ("Module(body=[Match(subject=Name(id='v', ctx=Load"
+                            "(), annotation=None, type_comment=None), cases=["
+                            "match_case(pattern=MatchOr(patterns=[MatchValue("
+                            "value=Constant(value=1, kind=None)), MatchValue("
+                            "value=Constant(value=2, kind=None))]), guard="
+                            "None, body=[Expr(value=Constant(value=Ellipsis, "
+                            "kind=None))])])], type_ignores=[])")
+                    self.assertEqual(gast.dump(tree), norm)
+
         else:
 
             def test_Bytes(self):
