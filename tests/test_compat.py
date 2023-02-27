@@ -228,6 +228,21 @@ class CompatTestCase(unittest.TestCase):
                             "kind=None))])])], type_ignores=[])")
                     self.assertEqual(gast.dump(tree), norm)
 
+
+                if sys.version_info.minor >= 11:
+
+                    def test_TryStar(self):
+                        code = '''
+                            try: ...
+                            except *ValueError: ...'''
+                        norm = ("Module(body=[TryStar(body=[Expr(value="
+                                "Constant(value=Ellipsis))], handlers=["
+                                "ExceptHandler(type=Name(id='ValueError', ctx"
+                                "=Load()), body=[Expr(value=Constant(value="
+                                "Ellipsis))])], orelse=[], finalbody=[])], "
+                                "type_ignores=[])")
+                        pass
+
         else:
 
             def test_Bytes(self):

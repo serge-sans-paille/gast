@@ -171,6 +171,7 @@ trade-offs to cope with legacy ASTs.
 
               | Raise(expr? exc, expr? cause)
               | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)
+              | TryStar(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)
               | Assert(expr test, expr? msg)
 
               | Import(alias* names)
