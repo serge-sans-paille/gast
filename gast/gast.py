@@ -10,6 +10,12 @@ except ImportError:
     class TypeIgnore(AST):
         pass
 
+try:
+    from ast import pattern
+except ImportError:
+    class pattern(AST):
+        pass
+
 
 def _make_node(Name, Fields, Attributes, Bases):
     NBFields = len(Fields)
@@ -91,6 +97,9 @@ _nodes = (
               ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
               (stmt,))),
     ('AsyncWith', (('items', 'body', 'type_comment'),
+                   ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
+                   (stmt,))),
+    ('Match', (('subject', 'cases'),
                    ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
                    (stmt,))),
     ('Raise', (('exc', 'cause',),
@@ -289,6 +298,42 @@ _nodes = (
 
     # withitem
     ('withitem', (('context_expr', 'optional_vars'), (), (AST,))),
+
+    # match_case
+    ('match_case', (('pattern', 'guard', 'body'), (), (AST,))),
+
+    # pattern
+    ('MatchValue', (('value',),
+                    ('lineno', 'col_offset', 'end_lineno', 'end_col_offset'),
+                    (pattern,))),
+    ('MatchSingleton', (('value',),
+                        ('lineno', 'col_offset',
+                         'end_lineno', 'end_col_offset'),
+                        (pattern,))),
+    ('MatchSequence', (('patterns',),
+                       ('lineno', 'col_offset',
+                        'end_lineno', 'end_col_offset'),
+                       (pattern,))),
+    ('MatchMapping', (('keys', 'patterns', 'rest'),
+                      ('lineno', 'col_offset',
+                       'end_lineno', 'end_col_offset'),
+                      (pattern,))),
+    ('MatchClass', (('cls', 'patterns', 'kwd_attrs', 'kwd_patterns'),
+                    ('lineno', 'col_offset',
+                     'end_lineno', 'end_col_offset'),
+                    (pattern,))),
+    ('MatchStar', (('name',),
+                   ('lineno', 'col_offset',
+                    'end_lineno', 'end_col_offset'),
+                   (pattern,))),
+    ('MatchAs', (('pattern', 'name'),
+                   ('lineno', 'col_offset',
+                    'end_lineno', 'end_col_offset'),
+                   (pattern,))),
+    ('MatchOr', (('patterns',),
+                 ('lineno', 'col_offset',
+                  'end_lineno', 'end_col_offset'),
+                 (pattern,))),
 
     # type_ignore
     ('type_ignore', ((), ('lineno', 'tag'), (TypeIgnore,))),

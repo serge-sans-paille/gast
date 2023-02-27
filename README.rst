@@ -119,6 +119,9 @@ Pit Falls
 ASDL
 ****
 
+This closely matches the one from https://docs.python.org/3/library/ast.html#abstract-grammar, with a few
+trade-offs to cope with legacy ASTs.
+
 .. code::
 
     -- ASDL's six builtin types are identifier, int, string, bytes, object, singleton
@@ -163,6 +166,8 @@ ASDL
               | If(expr test, stmt* body, stmt* orelse)
               | With(withitem* items, stmt* body, string? type_comment)
               | AsyncWith(withitem* items, stmt* body, string? type_comment)
+
+              | Match(expr subject, match_case* cases)
 
               | Raise(expr? exc, expr? cause)
               | Try(stmt* body, excepthandler* handlers, stmt* orelse, stmt* finalbody)
@@ -254,6 +259,22 @@ ASDL
                 attributes (int lineno, int col_offset, int? end_lineno, int? end_col_offset)
 
         withitem = (expr context_expr, expr? optional_vars)
+
+        match_case = (pattern pattern, expr? guard, stmt* body)
+
+        pattern = MatchValue(expr value)
+                | MatchSingleton(constant value)
+                | MatchSequence(pattern* patterns)
+                | MatchMapping(expr* keys, pattern* patterns, identifier? rest)
+                | MatchClass(expr cls, pattern* patterns, identifier* kwd_attrs, pattern* kwd_patterns)
+
+                | MatchStar(identifier? name)
+                -- The optional "rest" MatchMapping parameter handles capturing extra mapping keys
+
+                | MatchAs(pattern? pattern, identifier? name)
+                | MatchOr(pattern* patterns)
+
+                 attributes (int lineno, int col_offset, int end_lineno, int end_col_offset)
 
         type_ignore = TypeIgnore(int lineno, string tag)
     }
