@@ -35,7 +35,7 @@ class CheckAllNodesInMapping(gast.NodeVisitor):
         self.generic_visit(node)
 
 
-class APITestCase(unittest.TestCase):
+class NodeMapTestCase(unittest.TestCase):
 
     def test_simple_mapping(self):
         code = "1, 3"
