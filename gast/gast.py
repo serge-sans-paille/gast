@@ -350,6 +350,7 @@ if _sys.version_info.major == 2:
 if _sys.version_info.major == 3:
     from .ast3 import ast_to_gast, gast_to_ast
 
+from .nodemap import parse_and_map
 
 def parse(*args, **kwargs):
     return ast_to_gast(_ast.parse(*args, **kwargs))

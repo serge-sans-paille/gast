@@ -29,7 +29,12 @@ class SelfTestCase(unittest.TestCase):
                 content = f.read()
             gnode = gast.parse(content)
             gast.unparse(gnode)
-
+    
+    def test_nodemap(self):
+        for src_py in self.srcs:
+            with open(src_py) as f:
+                content = f.read()
+            gast.parse_and_map(content)
 
 if __name__ == '__main__':
     unittest.main()
