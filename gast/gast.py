@@ -17,14 +17,21 @@ except ImportError:
         pass
 
 
+try:
+    from ast import type_param
+except ImportError:
+    class type_param(AST):
+        pass
+
+
 def _make_node(Name, Fields, Attributes, Bases):
     NBFields = len(Fields)
 
     def create_node(self, *args, **kwargs):
         if args:
-            if len(args) + len([k for k in kwargs if k in Fields]) != NBFields:
+            if len(args) + len([k for k in kwargs if k in Fields]) > NBFields:
                 raise TypeError(
-                    "{} constructor takes either 0 or {} mandatory arguments".
+                    "{} constructor takes between 0 and {} arguments".
                     format(Name, NBFields))
             for argname, argval in zip(Fields, args):
                 setattr(self, argname, argval)
@@ -51,16 +58,16 @@ _nodes = (
 
     # stmt
     ('FunctionDef', (('name', 'args', 'body', 'decorator_list', 'returns',
-                      'type_comment'),
+                      'type_comment', 'type_params'),
                      ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
                      (stmt,))),
-    ('AsyncFunctionDef', (('name', 'args', 'body',
-                           'decorator_list', 'returns',
-                           'type_comment'),
+    ('AsyncFunctionDef', (('name', 'args', 'body', 'decorator_list', 'returns',
+                           'type_comment', 'type_params',),
                           ('lineno', 'col_offset',
                            'end_lineno', 'end_col_offset',),
                           (stmt,))),
-    ('ClassDef', (('name', 'bases', 'keywords', 'body', 'decorator_list',),
+    ('ClassDef', (('name', 'bases', 'keywords', 'body', 'decorator_list',
+                   'type_params',),
                   ('lineno', 'col_offset', 'end_lineno', 'end_col_offset',),
                   (stmt,))),
     ('Return', (('value',),
@@ -343,7 +350,24 @@ _nodes = (
 
     # type_ignore
     ('type_ignore', ((), ('lineno', 'tag'), (TypeIgnore,))),
+
+    # type_param
+    ('TypeVar', (('name', 'bound',),
+                 ('lineno', 'col_offset',
+                  'end_lineno', 'end_col_offset'),
+                 (type_param,))),
+    ('ParamSpec', (('name',),
+                 ('lineno', 'col_offset',
+                  'end_lineno', 'end_col_offset'),
+                 (type_param,))),
+    ('TypeVarTuple', (('name',),
+                 ('lineno', 'col_offset',
+                  'end_lineno', 'end_col_offset'),
+                 (type_param,))),
     )
+
+
+
 
 for name, descr in _nodes:
     _make_node(name, *descr)

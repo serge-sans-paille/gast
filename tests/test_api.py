@@ -132,7 +132,8 @@ def foo(x=1, *args, **kwargs):
         node1 = gast.Name('id', load, None, None)
         node2 = gast.Name('id', load, None, type_comment=None)
         with self.assertRaises(TypeError):
-            node1 = gast.Name('id')
+            node1 = gast.Name('id', 'ctx', 'annotation', 'type_comment',
+                              'random_field')
         for field in gast.Name._fields:
             self.assertEqual(getattr(node1, field), getattr(node2, field))
 

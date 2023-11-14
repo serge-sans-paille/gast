@@ -6,6 +6,10 @@ import sys
 
 class CompatTestCase(unittest.TestCase):
 
+    def __init__(self, *args, **kwargs):
+        unittest.TestCase.__init__(self, *args, **kwargs)
+        self.maxDiff = None
+
     if sys.version_info.major == 2:
 
         def test_FunctionDef(self):
@@ -23,7 +27,8 @@ class CompatTestCase(unittest.TestCase):
                     "Name(id='y', ctx=Load(), "
                     "annotation=None, type_comment=None"
                     ")], ctx=Load()))], decorator_list="
-                    "[], returns=None, type_comment=None)], type_ignores=[])")
+                    "[], returns=None, type_comment=None, type_params=[])], "
+                    "type_ignores=[])")
             self.assertEqual(gast.dump(tree), norm)
 
     else:
@@ -38,7 +43,8 @@ class CompatTestCase(unittest.TestCase):
                     "), type_comment=None)], posonlyargs="
                     "[], vararg=None, kwonlyargs=[], kw_defaults=[], kwarg="
                     "None, defaults=[]), body=[Pass()], decorator_list=[], "
-                    "returns=None, type_comment=None)], type_ignores=[])")
+                    "returns=None, type_comment=None, type_params=[])], "
+                    "type_ignores=[])")
             self.assertEqual(gast.dump(tree), norm)
 
         def test_KeywordOnlyArgument(self):
@@ -50,7 +56,8 @@ class CompatTestCase(unittest.TestCase):
                     "(id='x', ctx=Param(), annotation=None, type_comment=None"
                     ")], kw_defaults=[Constant(value=1, kind=None)], kwarg="
                     "None, defaults=[]), body=[Pass()], decorator_list=[], "
-                    "returns=None, type_comment=None)], type_ignores=[])")
+                    "returns=None, type_comment=None, type_params=[])], "
+                    "type_ignores=[])")
             self.assertEqual(gast.dump(tree), norm)
 
         if sys.version_info.minor >= 6:
@@ -94,7 +101,7 @@ class CompatTestCase(unittest.TestCase):
                         "args=[], posonlyargs=[], vararg=None, kwonlyargs=[], "
                         "kw_defaults=[], kwarg=None, defaults=[]), body=["
                         "Pass()], decorator_list=[], returns=None, "
-                        "type_comment=None)], type_ignores="
+                        "type_comment=None, type_params=[])], type_ignores="
                         "[TypeIgnore(lineno=1, tag='[excuse]')])")
                 self.assertEqual(gast.dump(tree), norm)
 
@@ -108,8 +115,8 @@ class CompatTestCase(unittest.TestCase):
                         "ctx=Param(), annotation=None, type_comment=None)], "
                         "vararg=None, kwonlyargs=[], kw_defaults=[], "
                         "kwarg=None, defaults=[]), body=[Pass()], "
-                        "decorator_list=[], returns=None, type_comment=None)"
-                        "], type_ignores=[])")
+                        "decorator_list=[], returns=None, type_comment=None, "
+                        "type_params=[])], type_ignores=[])")
                 self.assertEqual(gast.dump(tree), norm)
 
             def test_NamedExpr(self):
@@ -138,7 +145,6 @@ class CompatTestCase(unittest.TestCase):
                     self.assertEqual(gast.dump(tree), norm)
 
                 def test_MatchSingleton(self):
-                    self.maxDiff = None
                     code = 'match v:\n  case None:...'
                     tree = gast.parse(code)
                     compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -318,7 +324,6 @@ class CompatTestCase(unittest.TestCase):
             self.assertEqual(gast.dump(tree), norm)
 
     def test_Call(self):
-        self.maxDiff = None
         code = 'foo(x, y=1, *args, **kwargs)'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -361,7 +366,7 @@ class CompatTestCase(unittest.TestCase):
                 "annotation=None, type_comment=None), "
                 "kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]), "
                 "body=[Pass()], decorator_list=[], returns=None, "
-                "type_comment=None)], type_ignores=[])")
+                "type_comment=None, type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_keyword_argument(self):
@@ -372,8 +377,8 @@ class CompatTestCase(unittest.TestCase):
                 "posonlyargs=[], vararg=None, kwonlyargs=[], kw_defaults=[], "
                 "kwarg=Name(id='a', ctx=Param(), annotation=None, "
                 "type_comment=None), defaults=[]), body=[Pass()], "
-                "decorator_list=[], returns=None, type_comment=None)], "
-                "type_ignores=[])")
+                "decorator_list=[], returns=None, type_comment=None, "
+                "type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_Index(self):
@@ -386,12 +391,11 @@ class CompatTestCase(unittest.TestCase):
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
                 ", slice=Constant(value=1, kind=None), ctx=Load()"
-                "))], decorator_list=[], returns=None, type_comment=None)]"
-                ", type_ignores=[])")
+                "))], decorator_list=[], returns=None, type_comment=None, "
+                "type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_ExtSlice(self):
-        self.maxDiff = None
         code = 'def foo(a): a[:,:]'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -403,11 +407,10 @@ class CompatTestCase(unittest.TestCase):
                 ", slice=Tuple(elts=[Slice(lower=None, upper=None, step="
                 "None), Slice(lower=None, upper=None, step=None)], ctx=Load())"
                 ", ctx=Load()))], decorator_list=[], returns=None, "
-                "type_comment=None)], type_ignores=[])")
+                "type_comment=None, type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_ExtSlices(self):
-        self.maxDiff = None
         code = 'def foo(a): a[1,:]'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -419,11 +422,10 @@ class CompatTestCase(unittest.TestCase):
                 ", slice=Tuple(elts=[Constant(value=1, kind="
                 "None), Slice(lower=None, upper=None, step=None)], ctx=Load())"
                 ", ctx=Load()))], decorator_list=[], returns=None, "
-                "type_comment=None)], type_ignores=[])")
+                "type_comment=None, type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_Ellipsis(self):
-        self.maxDiff = None
         code = 'def foo(a): a[...]'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -433,12 +435,11 @@ class CompatTestCase(unittest.TestCase):
                 ", kwarg=None, defaults=[]), body=[Expr(value=Subscript(value="
                 "Name(id='a', ctx=Load(), annotation=None, type_comment=None)"
                 ", slice=Constant(value=Ellipsis, kind=None), ctx=Load()))], "
-                "decorator_list=[], returns=None, type_comment="
-                "None)], type_ignores=[])")
+                "decorator_list=[], returns=None, type_comment=None, "
+                "type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
     def test_ExtSliceEllipsis(self):
-        self.maxDiff = None
         code = 'def foo(a): a[1, ...]'
         tree = gast.parse(code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
@@ -450,7 +451,7 @@ class CompatTestCase(unittest.TestCase):
                 ", slice=Tuple(elts=[Constant(value=1, kind=None)"
                 ", Constant(value=Ellipsis, kind=None)], ctx=Load()), ctx="
                 "Load()))], decorator_list=[], returns=None, type_comment="
-                "None)], type_ignores=[])")
+                "None, type_params=[])], type_ignores=[])")
         self.assertEqual(gast.dump(tree), norm)
 
 
