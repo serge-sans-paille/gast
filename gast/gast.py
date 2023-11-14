@@ -25,19 +25,21 @@ except ImportError:
 
 
 def _make_node(Name, Fields, Attributes, Bases):
-    NBFields = len(Fields)
 
+    # This constructor is used a lot during conversion from ast to gast,
+    # then as the primary way to build ast nodes. So we tried to optimized it
+    # for speed and not for readability.
     def create_node(self, *args, **kwargs):
-        if args:
-            if len(args) + len([k for k in kwargs if k in Fields]) > NBFields:
-                raise TypeError(
-                    "{} constructor takes between 0 and {} arguments".
-                    format(Name, NBFields))
-            for argname, argval in zip(Fields, args):
-                setattr(self, argname, argval)
-        if kwargs:
-            for argname, argval in kwargs.items():
-                setattr(self, argname, argval)
+        if len(args) > len(Fields):
+            raise TypeError(
+                "{} constructor takes at most {} positional arguments".
+                format(Name, len(Fields)))
+
+        # it's faster to enumerate than zipping
+        for i, argval in enumerate(args):
+            setattr(self, Fields[i], argval)
+        if kwargs:  # cold branch
+            self.__dict__.update(kwargs)
 
     setattr(_sys.modules[__name__],
             Name,
