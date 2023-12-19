@@ -64,6 +64,9 @@ The AST used by GAST is the same as the one used in Python3.9, with the
 notable exception of ``ast.arg`` being replaced by an ``ast.Name`` with an
 ``ast.Param`` context.
 
+The ``name`` field of ``ExceptHandler`` is represented as an ``ast.Name`` with
+an ``ast.Store`` context and not a ``str``.
+
 For minor version before 3.9, please note that ``ExtSlice`` and ``Index`` are
 not used.
 
