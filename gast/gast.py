@@ -35,9 +35,9 @@ def _make_node(Name, Fields, Attributes, Bases):
                 "{} constructor takes at most {} positional arguments".
                 format(Name, len(Fields)))
 
-        # it's faster to enumerate than zipping
-        for i, argval in enumerate(args):
-            setattr(self, Fields[i], argval)
+        # it's faster to iterate rather than zipping or enumerate
+        for i in range(len(args)):
+            setattr(self, Fields[i], args[i])
         if kwargs:  # cold branch
             self.__dict__.update(kwargs)
 
