@@ -289,3 +289,16 @@ trade-offs to cope with legacy ASTs.
                     | TypeVarTuple(identifier name)
                     attributes (int lineno, int col_offset, int end_lineno, int end_col_offset)
     }
+
+
+Reporting Bugs
+--------------
+
+Bugs can be reported through `GitHub issues <https://github.com/serge-sans-paille/gast/issues>`_.
+
+Reporting Security Issues
+-------------------------
+
+If for some reason, you think your bug is security-related and should be subject
+to responsible disclosure, don't hesitate to `contact the maintainer
+<mailto:serge.guelton@telecom-bretagne.eu>`_ directly.
