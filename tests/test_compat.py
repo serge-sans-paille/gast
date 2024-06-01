@@ -4,6 +4,14 @@ import gast
 import sys
 
 
+if sys.version_info >= (3, 13):
+    def dump(node):
+        return gast.dump(node, show_empty=True)
+else:
+    def dump(node):
+        return gast.dump(node)
+
+
 class CompatTestCase(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
@@ -29,7 +37,7 @@ class CompatTestCase(unittest.TestCase):
                     ")], ctx=Load()))], decorator_list="
                     "[], returns=None, type_comment=None, type_params=[])], "
                     "type_ignores=[])")
-            self.assertEqual(gast.dump(tree), norm)
+            self.assertEqual(dump(tree), norm)
 
     else:
 
@@ -45,7 +53,7 @@ class CompatTestCase(unittest.TestCase):
                     "None, defaults=[]), body=[Pass()], decorator_list=[], "
                     "returns=None, type_comment=None, type_params=[])], "
                     "type_ignores=[])")
-            self.assertEqual(gast.dump(tree), norm)
+            self.assertEqual(dump(tree), norm)
 
         def test_KeywordOnlyArgument(self):
             code = 'def foo(*, x=1): pass'
@@ -58,7 +66,7 @@ class CompatTestCase(unittest.TestCase):
                     "None, defaults=[]), body=[Pass()], decorator_list=[], "
                     "returns=None, type_comment=None, type_params=[])], "
                     "type_ignores=[])")
-            self.assertEqual(gast.dump(tree), norm)
+            self.assertEqual(dump(tree), norm)
 
         if sys.version_info.minor >= 6:
 
@@ -74,7 +82,7 @@ class CompatTestCase(unittest.TestCase):
                         "ctx=Load(), annotation=None, type_comment=None), "
                         "conversion=-1, format_spec=None)]))], "
                         "type_ignores=[])")
-                self.assertEqual(gast.dump(tree), norm)
+                self.assertEqual(dump(tree), norm)
 
             def test_JoinedStr(self):
                 code = 'e = 1; f"e = {e}"'
@@ -89,7 +97,7 @@ class CompatTestCase(unittest.TestCase):
                         "annotation=None, type_comment=None), "
                         "conversion=-1, format_spec=None)]))], "
                         "type_ignores=[])")
-                self.assertEqual(gast.dump(tree), norm)
+                self.assertEqual(dump(tree), norm)
 
         if sys.version_info.minor >= 8:
 
@@ -103,7 +111,7 @@ class CompatTestCase(unittest.TestCase):
                         "Pass()], decorator_list=[], returns=None, "
                         "type_comment=None, type_params=[])], type_ignores="
                         "[TypeIgnore(lineno=1, tag='[excuse]')])")
-                self.assertEqual(gast.dump(tree), norm)
+                self.assertEqual(dump(tree), norm)
 
             def test_PosonlyArgs(self):
                 code = 'def foo(a, /, b): pass'
@@ -117,7 +125,7 @@ class CompatTestCase(unittest.TestCase):
                         "kwarg=None, defaults=[]), body=[Pass()], "
                         "decorator_list=[], returns=None, type_comment=None, "
                         "type_params=[])], type_ignores=[])")
-                self.assertEqual(gast.dump(tree), norm)
+                self.assertEqual(dump(tree), norm)
 
             def test_NamedExpr(self):
                 code = '(x := 1) '
@@ -127,7 +135,7 @@ class CompatTestCase(unittest.TestCase):
                         " ctx=Store(), annotation=None, type_comment=None), "
                         "value=Constant(value=1, kind=None)))], type_ignores="
                         "[])")
-                self.assertEqual(gast.dump(tree), norm)
+                self.assertEqual(dump(tree), norm)
 
             if sys.version_info.minor >= 10:
 
@@ -142,7 +150,7 @@ class CompatTestCase(unittest.TestCase):
                             "[Expr(value=Constant(value=Ellipsis, kind=None))]"
                             ")])], type_ignores=[])"
                             )
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchSingleton(self):
                     code = 'match v:\n  case None:...'
@@ -153,7 +161,7 @@ class CompatTestCase(unittest.TestCase):
                             "match_case(pattern=MatchSingleton(value=None), "
                             "guard=None, body=[Expr(value=Constant(value="
                             "Ellipsis, kind=None))])])], type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchSequence(self):
                     code = 'match v:\n  case a, b:...'
@@ -166,7 +174,7 @@ class CompatTestCase(unittest.TestCase):
                             "=None, name='b')]), guard=None, body=[Expr(value"
                             "=Constant(value=Ellipsis, kind=None))])])], "
                             "type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchMapping(self):
                     code = 'match v:\n  case {1: a}:...'
@@ -179,7 +187,7 @@ class CompatTestCase(unittest.TestCase):
                             "=None, name='a')], rest=None), guard=None, body="
                             "[Expr(value=Constant(value=Ellipsis, kind=None))]"
                             ")])], type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchClass(self):
                     code = 'match v:\n  case Cls(attr=1):...'
@@ -193,7 +201,7 @@ class CompatTestCase(unittest.TestCase):
                             "=[MatchValue(value=Constant(value=1, kind=None))"
                             "]), guard=None, body=[Expr(value=Constant(value="
                             "Ellipsis, kind=None))])])], type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchStar(self):
                     code = 'match v:\n  case [1, *other]:...'
@@ -206,7 +214,7 @@ class CompatTestCase(unittest.TestCase):
                             "MatchStar(name='other')]), guard=None, body="
                             "[Expr(value=Constant(value=Ellipsis, kind=None)"
                             ")])])], type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchAs(self):
                     code = 'match v:\n  case 1, other:...'
@@ -219,7 +227,7 @@ class CompatTestCase(unittest.TestCase):
                             "MatchAs(pattern=None, name='other')]), guard=None"
                             ", body=[Expr(value=Constant(value=Ellipsis, kind"
                             "=None))])])], type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
                 def test_MatchOr(self):
                     code = 'match v:\n  case 1 | 2:...'
@@ -232,7 +240,7 @@ class CompatTestCase(unittest.TestCase):
                             "value=Constant(value=2, kind=None))]), guard="
                             "None, body=[Expr(value=Constant(value=Ellipsis, "
                             "kind=None))])])], type_ignores=[])")
-                    self.assertEqual(gast.dump(tree), norm)
+                    self.assertEqual(dump(tree), norm)
 
 
                 if sys.version_info.minor >= 11:
@@ -257,7 +265,7 @@ class CompatTestCase(unittest.TestCase):
                 compile(gast.gast_to_ast(tree), '<test>', 'exec')
                 norm = ("Module(body=[Expr(value=Constant(value=b'0012', "
                         "kind=None))], type_ignores=[])")
-                self.assertEqual(gast.dump(tree), norm)
+                self.assertEqual(dump(tree), norm)
 
     # common
 
@@ -269,7 +277,7 @@ class CompatTestCase(unittest.TestCase):
                 "type=Name(id='e', ctx=Load(), annotation=None, "
                 "type_comment=None), name=None, body=[Pass()])]"
                 ", orelse=[Pass()], finalbody=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_TryExceptNamed(self):
         code = 'try:pass\nexcept e as f:pass\nelse:pass'
@@ -280,7 +288,7 @@ class CompatTestCase(unittest.TestCase):
                 "type_comment=None), name=Name(id='f', ctx="
                 "Store(), annotation=None, type_comment=None), body=[Pass()])]"
                 ", orelse=[Pass()], finalbody=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_Raise(self):
         codes = ('raise Exception',
@@ -321,7 +329,7 @@ class CompatTestCase(unittest.TestCase):
         for code, norm in zip(codes, norms):
             tree = gast.parse(code)
             compile(gast.gast_to_ast(tree), '<test>', 'exec')
-            self.assertEqual(gast.dump(tree), norm)
+            self.assertEqual(dump(tree), norm)
 
     def test_Call(self):
         code = 'foo(x, y=1, *args, **kwargs)'
@@ -336,7 +344,7 @@ class CompatTestCase(unittest.TestCase):
                 "arg='y', value=Constant(value=1, kind=None)), keyword(arg"
                 "=None, value=Name(id='kwargs', ctx=Load(), annotation=None, "
                 "type_comment=None))]))], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_With(self):
         code = 'with open("any"): pass'
@@ -347,7 +355,7 @@ class CompatTestCase(unittest.TestCase):
                 "type_comment=None), args=[Constant(value='any', "
                 "kind=None)], keywords=[]), optional_vars=None)], body=["
                 "Pass()], type_comment=None)], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_TryFinally(self):
         code = 'try:pass\nfinally:pass'
@@ -355,7 +363,7 @@ class CompatTestCase(unittest.TestCase):
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
         norm = ("Module(body=[Try(body=[Pass()], handlers=[], orelse=[], "
                 "finalbody=[Pass()])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_star_argument(self):
         code = 'def foo(*a): pass'
@@ -367,7 +375,7 @@ class CompatTestCase(unittest.TestCase):
                 "kwonlyargs=[], kw_defaults=[], kwarg=None, defaults=[]), "
                 "body=[Pass()], decorator_list=[], returns=None, "
                 "type_comment=None, type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_keyword_argument(self):
         code = 'def foo(**a): pass'
@@ -379,7 +387,7 @@ class CompatTestCase(unittest.TestCase):
                 "type_comment=None), defaults=[]), body=[Pass()], "
                 "decorator_list=[], returns=None, type_comment=None, "
                 "type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_Index(self):
         code = 'def foo(a): a[1]'
@@ -393,7 +401,7 @@ class CompatTestCase(unittest.TestCase):
                 ", slice=Constant(value=1, kind=None), ctx=Load()"
                 "))], decorator_list=[], returns=None, type_comment=None, "
                 "type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_ExtSlice(self):
         code = 'def foo(a): a[:,:]'
@@ -408,7 +416,7 @@ class CompatTestCase(unittest.TestCase):
                 "None), Slice(lower=None, upper=None, step=None)], ctx=Load())"
                 ", ctx=Load()))], decorator_list=[], returns=None, "
                 "type_comment=None, type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_ExtSlices(self):
         code = 'def foo(a): a[1,:]'
@@ -423,7 +431,7 @@ class CompatTestCase(unittest.TestCase):
                 "None), Slice(lower=None, upper=None, step=None)], ctx=Load())"
                 ", ctx=Load()))], decorator_list=[], returns=None, "
                 "type_comment=None, type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_Ellipsis(self):
         code = 'def foo(a): a[...]'
@@ -437,7 +445,7 @@ class CompatTestCase(unittest.TestCase):
                 ", slice=Constant(value=Ellipsis, kind=None), ctx=Load()))], "
                 "decorator_list=[], returns=None, type_comment=None, "
                 "type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_ExtSliceEllipsis(self):
         code = 'def foo(a): a[1, ...]'
@@ -452,7 +460,7 @@ class CompatTestCase(unittest.TestCase):
                 ", Constant(value=Ellipsis, kind=None)], ctx=Load()), ctx="
                 "Load()))], decorator_list=[], returns=None, type_comment="
                 "None, type_params=[])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
 
 if __name__ == '__main__':

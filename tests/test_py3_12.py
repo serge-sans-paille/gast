@@ -4,6 +4,12 @@ import ast
 import gast
 import sys
 
+if sys.version_info >= (3, 13):
+    def dump(node):
+        return gast.dump(node, show_empty=True)
+else:
+    def dump(node):
+        return gast.dump(node)
 
 
 class Python3_12TestCase(unittest.TestCase):
@@ -24,7 +30,7 @@ class Python3_12TestCase(unittest.TestCase):
                 "type_comment=None), Name(id='float', ctx=Load(), "
                 "annotation=None, type_comment=None)], ctx=Load()), "
                 "ctx=Load()))], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_generic_type_alias(self):
         code = "type Point[T] = tuple[T, float]"
@@ -38,7 +44,7 @@ class Python3_12TestCase(unittest.TestCase):
                 "type_comment=None), Name(id='float', ctx=Load(), "
                 "annotation=None, type_comment=None)], ctx=Load()), ctx=Load()"
                 "))], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_generic_function(self):
         code = "def foo[T]():..."
@@ -50,7 +56,7 @@ class Python3_12TestCase(unittest.TestCase):
                 "Ellipsis, kind=None))], decorator_list=[], returns=None, "
                 "type_comment=None, type_params=[TypeVar(name='T', "
                 "bound=None)])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
     def test_generic_class(self):
         code = "class foo[T]:..."
@@ -60,7 +66,7 @@ class Python3_12TestCase(unittest.TestCase):
                 "body=[Expr(value=Constant(value=Ellipsis, kind=None))], "
                 "decorator_list=[], type_params=[TypeVar(name='T', bound=None)"
                 "])], type_ignores=[])")
-        self.assertEqual(gast.dump(tree), norm)
+        self.assertEqual(dump(tree), norm)
 
 if sys.version_info < (3, 12):
     del Python3_12TestCase
