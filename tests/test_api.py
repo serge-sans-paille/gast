@@ -2,6 +2,15 @@ import unittest
 
 import ast
 import gast
+import sys
+
+
+if sys.version_info >= (3, 13):
+    def dump(node):
+        return gast.dump(node, show_empty=True)
+else:
+    def dump(node):
+        return gast.dump(node)
 
 
 class APITestCase(unittest.TestCase):
@@ -33,7 +42,7 @@ def foo(x=1, *args, **kwargs):
     def test_dump(self):
         code = 'lambda x: x'
         tree = gast.parse(code, mode='eval')
-        dump = gast.dump(tree)
+        zdump = dump(tree)
         norm = ("Expression(body=Lambda(args=arguments(args=[Name("
                 "id='x', ctx=Param(), "
                 "annotation=None, type_comment=None)], posonlyargs=[], "
@@ -41,16 +50,16 @@ def foo(x=1, *args, **kwargs):
                 "defaults=[]), body=Name(id='x', ctx=Load(), "
                 "annotation=None, type_comment=None)"
                 "))")
-        self.assertEqual(dump, norm)
+        self.assertEqual(zdump, norm)
 
     def test_walk(self):
         code = 'x + 1'
         tree = gast.parse(code, mode='eval')
-        dump = gast.dump(tree)
+        zdump = dump(tree)
         norm = ("Expression(body=BinOp(left=Name(id='x', ctx=Load(), "
                 "annotation=None, type_comment=None), op=Add(), "
                 "right=Constant(value=1, kind=None)))")
-        self.assertEqual(dump, norm)
+        self.assertEqual(zdump, norm)
         self.assertEqual(len(list(gast.walk(tree))), 6)
 
     def test_iter_fields(self):
