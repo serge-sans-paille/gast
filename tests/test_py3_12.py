@@ -4,12 +4,8 @@ import ast
 import gast
 import sys
 
-if sys.version_info >= (3, 13):
-    def dump(node):
-        return gast.dump(node, show_empty=True)
-else:
-    def dump(node):
-        return gast.dump(node)
+def dump(node):
+    return gast.dump(node, show_empty=True)
 
 
 class Python3_12TestCase(unittest.TestCase):
