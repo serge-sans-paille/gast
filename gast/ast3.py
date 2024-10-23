@@ -250,6 +250,19 @@ class Ast3ToGAst(AstToGAst):
             )
             return gast.copy_location(new_node, node)
 
+    if sys.version_info.minor < 12:
+
+        def visit_ClassDef(self, node):
+            new_node = gast.ClassDef(
+                self._visit(node.name),
+                self._visit(node.bases),
+                self._visit(node.keywords),
+                self._visit(node.body),
+                self._visit(node.decorator_list),
+                [],  # type_params
+            )
+            return gast.copy_location(new_node, node)
+
 
 class GAstToAst3(GAstToAst):
     if sys.version_info.minor < 10:

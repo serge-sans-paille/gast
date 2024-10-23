@@ -458,6 +458,15 @@ class CompatTestCase(unittest.TestCase):
                 "None, type_params=[])], type_ignores=[])")
         self.assertEqual(dump(tree), norm)
 
+    def test_ClassDef(self):
+        code = 'class Foo: pass'
+        tree = gast.parse(code)
+        compile(gast.gast_to_ast(tree), '<test>', 'exec')
+        norm = ("Module(body=[ClassDef(name='Foo', bases=[], keywords=[], "
+                "body=[Pass()], decorator_list=[], type_params=[])], "
+                "type_ignores=[])")
+        self.assertEqual(dump(tree), norm)
+
 
 if __name__ == '__main__':
     unittest.main()
