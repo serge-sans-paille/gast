@@ -226,7 +226,6 @@ class Ast3ToGAst(AstToGAst):
             return ast.copy_location(new_node, node)
 
     if 8 <= sys.version_info.minor < 12:
-
         def visit_FunctionDef(self, node):
             new_node = gast.FunctionDef(
                 self._visit(node.name),
