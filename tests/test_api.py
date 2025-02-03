@@ -74,12 +74,40 @@ def foo(x=1, *args, **kwargs):
         gast.increment_lineno(tree)
         self.assertEqual(tree.lineno, 2)
 
-    def test_get_docstring(self):
+    def test_get_docstring_function(self):
         code = 'def foo(): "foo"'
         tree = gast.parse(code)
         func = tree.body[0]
         docs = gast.get_docstring(func)
         self.assertEqual(docs, "foo")
+
+    if sys.version_info >= (3, 5):
+        def test_get_docstring_asyncfunction(self):
+            code = 'async def foo(): "foo"'
+            tree = gast.parse(code)
+            func = tree.body[0]
+            docs = gast.get_docstring(func)
+            self.assertEqual(docs, "foo")
+
+    def test_get_docstring_module(self):
+        code = '"foo"'
+        tree = gast.parse(code)
+        docs = gast.get_docstring(tree)
+        self.assertEqual(docs, "foo")
+
+    def test_get_docstring_class(self):
+        code = 'class foo: "foo"'
+        tree = gast.parse(code)
+        cls = tree.body[0]
+        docs = gast.get_docstring(cls)
+        self.assertEqual(docs, "foo")
+
+    def test_get_docstring_expr(self):
+        code = '1'
+        tree = gast.parse(code)
+        func = tree
+        docs = gast.get_docstring(func)
+        self.assertEqual(docs, None)
 
     def test_copy_location(self):
         tree = gast.Constant(value=1, kind=None)

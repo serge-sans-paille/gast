@@ -396,15 +396,19 @@ def literal_eval(node_or_string):
 
 
 def get_docstring(node, clean=True):
-    if not isinstance(node, (FunctionDef, ClassDef, Module)):
+    if not isinstance(node, (AsyncFunctionDef, FunctionDef, ClassDef, Module)):
         raise TypeError("%r can't have docstrings" % node.__class__.__name__)
-    if node.body and isinstance(node.body[0], Expr) and \
-       isinstance(node.body[0].value, Constant):
-        if clean:
-            import inspect
-            holder = node.body[0].value
-            return inspect.cleandoc(getattr(holder, holder._fields[0]))
-        return node.body[0].value.s
+    if not(node.body and isinstance(node.body[0], Expr)):
+        return None
+    node = node.body[0].value
+    if isinstance(node, Constant) and isinstance(node.value, str):
+        text = node.value
+    else:
+        return None
+    if clean:
+        import inspect
+        text = inspect.cleandoc(text)
+    return text
 
 
 # the following are directly imported from python3.8's Lib/ast.py  #
