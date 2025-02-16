@@ -461,6 +461,15 @@ def fix_missing_locations(node):
     return node
 
 
+if _sys.version_info.major == 3 and _sys.version_info.minor >= 8:
+    get_source_segment = _ast.get_source_segment
+else:
+    # No end_lineno no end_col_offset info set for those version, so always
+    # return None
+    def get_source_segment(source, node, padded=False):
+        return None
+
+
 def increment_lineno(node, n=1):
     """
     Increment the line number and end line number of each node in the tree
