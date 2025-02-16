@@ -74,6 +74,31 @@ def foo(x=1, *args, **kwargs):
         gast.increment_lineno(tree)
         self.assertEqual(tree.lineno, 2)
 
+    def test_get_source_segment(self):
+        code = 'x + 1'
+        tree = gast.parse(code)
+        source = gast.get_source_segment(code, tree.body[0].value.left)
+        if sys.version_info >= (3, 8):
+            self.assertEqual(source, 'x')
+        else:
+            self.assertEqual(source, None)
+
+
+    def test_get_source_segment_padded(self):
+        code = 'if 1:\n if 2:\n  3'
+        tree = gast.parse(code)
+        if_tree = tree.body[0].body[0]
+        source_nopadding = gast.get_source_segment(code, if_tree, padded=False)
+        if sys.version_info >= (3, 8):
+            self.assertEqual(source_nopadding, 'if 2:\n  3')
+        else:
+            self.assertEqual(source_nopadding, None)
+        source_padding = gast.get_source_segment(code, if_tree, padded=True)
+        if sys.version_info >= (3, 8):
+            self.assertEqual(source_padding, ' if 2:\n  3')
+        else:
+            self.assertEqual(source_padding, None)
+
     def test_get_docstring_function(self):
         code = 'def foo(): "foo"'
         tree = gast.parse(code)
