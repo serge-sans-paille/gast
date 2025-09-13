@@ -24,6 +24,7 @@ def _generate_translators(to):
                 **{
                     field: self._visit(getattr(node, field))
                     for field in node._fields
+                    if hasattr(node, field)
                 }
             )
 
