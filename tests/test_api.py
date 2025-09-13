@@ -195,6 +195,30 @@ def foo(x=1, *args, **kwargs):
         for field in gast.Name._fields:
             self.assertEqual(getattr(node1, field), getattr(node2, field))
 
+    def test_IncompleteNodeConstructor(self):
+        afd = gast.AsyncFunctionDef(
+                    name="f",
+                    args=gast.arguments(
+                        args=[],
+                        posonlyargs=[],
+                        vararg=None,
+                        kwonlyargs=[],
+                        kw_defaults=[],
+                        kwarg=None,
+                        defaults=[],
+                        ),
+                    body=[],
+                    decorator_list=[],
+                    returns=None,
+                    type_comment=None,
+                    #type_params=[],
+                    )
+        # Should not fail even if type_params is not set
+        afd_ast = gast.gast_to_ast(afd)
+        self.assertEqual(afd_ast.name, "f")
+        if hasattr(afd_ast, "type_params"):
+            self.assertEqual(afd_ast.type_params, [])
+
 
 if __name__ == '__main__':
     unittest.main()
