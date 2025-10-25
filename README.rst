@@ -73,6 +73,9 @@ not used.
 For minor version before 3.8, please note that ``Ellipsis``, ``Num``, ``Str``,
 ``Bytes`` and ``NamedConstant`` are represented as ``Constant``.
 
+For minor version before 3.10, the ``_field_types`` field exist for each AST
+class, but it's always empty.
+
 Python2
 *******
 

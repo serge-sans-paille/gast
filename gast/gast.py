@@ -47,8 +47,13 @@ def _make_node(Name, Fields, Attributes, Bases):
                  Bases,
                  {'__init__': create_node,
                   '_fields': Fields,
+                  '_field_types': {},
                   '_attributes': Attributes}))
 
+def _fill_field_types(Name, FieldTypes):
+    node = getattr(_sys.modules[__name__], Name)
+    assert len(node._fields) == len(FieldTypes), Name
+    node._field_types.update(zip(node._fields, FieldTypes))
 
 _nodes = (
     # mod
@@ -368,11 +373,123 @@ _nodes = (
                  (type_param,))),
     )
 
+for _name, _descr in _nodes:
+    _make_node(_name, *_descr)
 
+# As an exception to gast rule that states that all nodes are identical for all
+# python version, we don't fill the field type for python with a version lower
+# than 3.10. Those version lack type support to be compatible with the more
+# modern representation anyway. The _field_types still exists though, but it's
+# always empty.
+if _sys.version_info >= (3, 10):
 
+    _node_types = (
+        # mod
+        ('Module', (list[stmt], list[type_ignore])),
+        ('Interactive', (list[stmt],)),
+        ('Expression', (expr,)),
+        ('FunctionType', ('argtypes', 'returns'),),
+        ('Suite', (list[stmt],),),
 
-for name, descr in _nodes:
-    _make_node(name, *descr)
+        # stmt
+        ('FunctionDef', (str, arguments, list[stmt], list[expr], expr | None, str | None, list[type_param]),),
+        ('AsyncFunctionDef', (str, arguments, list[stmt], list[expr], expr | None, str | None, list[type_param]),),
+        ('ClassDef', (str, list[expr], list[keyword], list[stmt], list[expr], list[type_param])),
+        ('Return', (expr | None,)),
+        ('Delete', (list[expr],)),
+        ('Assign', (list[expr], expr, str | None),),
+        ('TypeAlias', (expr, list[type_param], expr),),
+        ('AugAssign', (expr, operator, expr), ),
+        ('AnnAssign', (expr, expr, expr | None, int), ),
+        ('Print', (expr | None, list[expr], bool), ),
+        ('For', (expr, expr, list[stmt], list[stmt], str | None), ),
+        ('AsyncFor', (expr, expr, list[stmt], list[stmt], str | None), ),
+        ('While', (expr, list[stmt], list[stmt]), ),
+        ('If', (expr, list[stmt], list[stmt]), ),
+        ('With', (list[withitem], list[stmt], str | None), ),
+        ('AsyncWith', (list[withitem], list[stmt], str | None), ),
+        ('Match', (expr, match_case), ),
+        ('Raise', (expr | None, expr | None), ),
+        ('Try', (list[stmt], list[excepthandler], list[stmt], list[stmt]), ),
+        ('TryStar', (list[stmt], list[excepthandler], list[stmt], list[stmt]), ),
+        ('Assert', (expr, expr | None), ),
+        ('Import', (list[alias],), ),
+        ('ImportFrom', (str|None, list[alias], int | None), ),
+        ('Exec', (expr, expr | None, expr | None), ),
+        ('Global', (list[str],), ),
+        ('Nonlocal', (list[str],), ),
+        ('Expr', (expr,), ),
+
+        # expr
+
+        ('BoolOp', (boolop, list[expr]), ),
+        ('NamedExpr', (expr, expr), ),
+        ('BinOp', (expr, operator, expr), ),
+        ('UnaryOp', (unaryop, expr), ),
+        ('Lambda', (arguments, expr), ),
+        ('IfExp', (expr, expr, expr), ),
+        ('Dict', (list[expr], list[expr]), ),
+        ('Set', (list[expr],), ),
+        ('ListComp', (expr, list[comprehension]), ),
+        ('SetComp', (expr, list[comprehension]), ),
+        ('DictComp', (expr, expr, list[comprehension]), ),
+        ('GeneratorExp', (expr, list[comprehension]), ),
+        ('Await', (expr,), ),
+        ('Yield', (expr | None,), ),
+        ('YieldFrom', (expr,), ),
+        ('Compare', (expr, list[cmpop], list[expr]), ),
+        ('Call', (expr, list[expr], list[keyword]), ),
+        ('Repr', (expr,), ),
+        ('FormattedValue', (expr, int, expr | None), ),
+        ('JoinedStr', (list[expr],), ),
+        ('Constant', (object, str | None), ),
+        ('Attribute', (expr, str, expr_context), ),
+        ('Subscript', (expr, expr, expr_context), ),
+        ('Starred', (expr, expr_context), ),
+        ('Name', (str, expr_context, expr, str | None), ),
+        ('List', (list[expr], expr_context), ),
+        ('Tuple', (list[expr], expr_context), ),
+        ('Slice', (expr | None, expr | None, expr | None), ),
+
+        # comprehension
+        ('comprehension', (expr, expr, list[expr], int), ),
+
+        # excepthandler
+        ('ExceptHandler', (expr | None, str | None, list[stmt]), ),
+
+        # arguments
+        ('arguments', (list[expr], list[expr], expr | None, list[expr], list[expr], expr | None, list[expr]), ),
+
+        # keyword
+        ('keyword', (str | None, expr), ),
+
+        # alias
+        ('alias', (str, str | None), ),
+
+        # withitem
+        ('withitem', (expr, expr | None), ),
+
+        # match_case
+        ('match_case', (pattern, expr, list[stmt]), ),
+
+        # pattern
+        ('MatchValue', (expr,), ),
+        ('MatchSingleton', (object,), ),
+        ('MatchSequence', (list[pattern],), ),
+        ('MatchMapping', (list[expr], list[pattern], str | None), ),
+        ('MatchClass', (expr, list[pattern], list[str], list[pattern]), ),
+        ('MatchStar', (str | None,), ),
+        ('MatchAs', (pattern | None, str | None), ),
+        ('MatchOr', (list[pattern],), ),
+
+        # type_param
+        ('TypeVar', (str, expr | None), ),
+        ('ParamSpec', (str,), ),
+        ('TypeVarTuple', (str,), ),
+    )
+
+    for _name, _types in _node_types:
+        _fill_field_types(_name, _types)
 
 if _sys.version_info.major == 2:
     from .ast2 import ast_to_gast, gast_to_ast

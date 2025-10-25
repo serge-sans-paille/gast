@@ -35,7 +35,7 @@ def foo(x=1, *args, **kwargs):
         self.assertEqual(gast.unparse(gast.parse(code)),
                          'def foo(x=1):\n    return x')
 
-    def test_dump(self):
+    def test_dump0(self):
         code = 'lambda x: x'
         tree = gast.parse(code, mode='eval')
         zdump = dump(tree)
@@ -46,6 +46,14 @@ def foo(x=1, *args, **kwargs):
                 "defaults=[]), body=Name(id='x', ctx=Load(), "
                 "annotation=None, type_comment=None)"
                 "))")
+        self.assertEqual(zdump, norm)
+
+    def test_dump1(self):
+        code = 'def func(): return 1'
+        tree = gast.parse(code)
+        node = tree.body[0]
+        zdump = gast.dump(node)
+        norm = "FunctionDef(name='func', args=arguments(vararg=None, kwarg=None), body=[Return(value=Constant(value=1, kind=None))], returns=None, type_comment=None)"
         self.assertEqual(zdump, norm)
 
     def test_walk(self):
