@@ -204,7 +204,7 @@ def foo(x=1, *args, **kwargs):
             self.assertEqual(getattr(node1, field), getattr(node2, field))
 
     def test_IncompleteNodeConstructor(self):
-        afd = gast.AsyncFunctionDef(
+        afd = gast.FunctionDef(
                     name="f",
                     args=gast.arguments(
                         args=[],
