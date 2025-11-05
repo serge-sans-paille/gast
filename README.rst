@@ -222,7 +222,9 @@ trade-offs to cope with legacy ASTs.
              | Call(expr func, expr* args, keyword* keywords)
              | Repr(expr value)
              | FormattedValue(expr value, int? conversion, expr? format_spec)
+             | Interpolation(expr value, constant str, int conversion, expr? format_spec)
              | JoinedStr(expr* values)
+             | TemplateStr(expr* values)
              | Constant(constant value, string? kind)
 
              -- the following expression can appear in assignment context
