@@ -366,15 +366,15 @@ _nodes = (
     ('type_ignore', ((), ('lineno', 'tag'), (TypeIgnore,))),
 
     # type_param
-    ('TypeVar', (('name', 'bound',),
+    ('TypeVar', (('name', 'bound', 'default_value'),
                  ('lineno', 'col_offset',
                   'end_lineno', 'end_col_offset'),
                  (type_param,))),
-    ('ParamSpec', (('name',),
+    ('ParamSpec', (('name', 'default_value'),
                  ('lineno', 'col_offset',
                   'end_lineno', 'end_col_offset'),
                  (type_param,))),
-    ('TypeVarTuple', (('name',),
+    ('TypeVarTuple', (('name', 'default_value'),
                  ('lineno', 'col_offset',
                   'end_lineno', 'end_col_offset'),
                  (type_param,))),
@@ -492,9 +492,9 @@ if _sys.version_info >= (3, 10):
         ('MatchOr', (list[pattern],), ),
 
         # type_param
-        ('TypeVar', (str, expr | None), ),
-        ('ParamSpec', (str,), ),
-        ('TypeVarTuple', (str,), ),
+        ('TypeVar', (str, expr | None, expr | None), ),
+        ('ParamSpec', (str, expr | None), ),
+        ('TypeVarTuple', (str, expr | None), ),
     )
 
     for _name, _types in _node_types:
