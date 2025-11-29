@@ -11,18 +11,24 @@ class UnparserTestCase(unittest.TestCase):
         unittest.TestCase.__init__(self, *args, **kwargs)
         self.maxDiff = None
 
-    def assertUnparse(self, code):
+    def assertUnparse(self, code, parse_only=False):
         normalized_code = ast.unparse(ast.parse(code))
         tree = gast.parse(normalized_code)
         compile(gast.gast_to_ast(tree), '<test>', 'exec')
         unparsed = gast.unparse(tree)
-        self.assertEqual(normalized_code, unparsed)
+        if not parse_only:
+            self.assertEqual(normalized_code, unparsed)
 
     def test_FunctionDef(self):
         self.assertUnparse('def foo(x, y): return x, y')
 
     def test_BinaryOp(self):
         self.assertUnparse('1 + 3')
+
+    def test_ast_py(self):
+        with open(ast.__file__) as astfd:
+            self.assertUnparse(astfd.read(),
+                               parse_only=sys.version_info < (3, 12))
 
     if sys.version_info >= (3, 12):
 
