@@ -616,18 +616,26 @@ def increment_lineno(node, n=1):
 def dump(
     node, annotate_fields=True, include_attributes=False,
     # *,  # removed for compatibility with python2 :-/
-    indent=None, show_empty=False,
+    color=False, indent=None, show_empty=False,
 ):
     """
     Return a formatted dump of the tree in node.  This is mainly useful for
-    debugging purposes.  If annotate_fields is true (by default),
+    debugging purposes.
+
+    If annotate_fields is true (by default),
     the returned string will show the names and the values for fields.
     If annotate_fields is false, the result string will be more compact by
-    omitting unambiguous field names.  Attributes such as line
-    numbers and column offsets are not dumped by default.  If this is wanted,
-    include_attributes can be set to true.  If indent is a non-negative
-    integer or string, then the tree will be pretty-printed with that indent
-    level. None (the default) selects the single line representation.
+    omitting unambiguous field names.
+
+    Attributes such as line numbers and column offsets are not dumped by
+    default.  If this is wanted, include_attributes can be set to true.
+
+    Color is available for compatibility with R.15+ but is not honored.
+
+    If indent is a non-negative integer or string, then the tree will be
+    pretty-printed with that indent level. If indent is None (the default), the
+    tree is dumped on a single line.
+
     If show_empty is False, then empty lists and fields that are None
     will be omitted from the output for better readability.
     """
