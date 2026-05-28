@@ -3,6 +3,7 @@ import unittest
 import ast
 import gast
 import sys
+import warnings
 
 
 def dump(node):
@@ -226,6 +227,20 @@ def foo(x=1, *args, **kwargs):
         self.assertEqual(afd_ast.name, "f")
         if hasattr(afd_ast, "type_params"):
             self.assertEqual(afd_ast.type_params, [])
+
+    def test_gast_to_ast_ignores_unknown_fields(self):
+        tree = gast.parse('obj.attr')
+        attr = tree.body[0].value
+        attr._fields = attr._fields + ('___pyct_anno',)
+        attr.___pyct_anno = object()
+
+        with warnings.catch_warnings():
+            warnings.simplefilter('error', DeprecationWarning)
+            ast_tree = gast.gast_to_ast(tree)
+
+        ast_attr = ast_tree.body[0].value
+        self.assertEqual(ast_attr.attr, 'attr')
+        self.assertFalse(hasattr(ast_attr, '___pyct_anno'))
 
 
 if __name__ == '__main__':
