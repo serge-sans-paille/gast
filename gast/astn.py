@@ -20,11 +20,12 @@ def _generate_translators(to):
                 # handle nodes that are not part of the AST
                 return
             cls = getattr(to, class_name)
+            valid_fields = getattr(cls, '_fields', ())
             new_node = cls(
                 **{
                     field: self._visit(getattr(node, field))
                     for field in node._fields
-                    if hasattr(node, field)
+                    if hasattr(node, field) and field in valid_fields
                 }
             )
 
