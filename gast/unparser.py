@@ -688,7 +688,7 @@ class _Unparser(NodeVisitor):
         self._write_ftstring(node.values, "t")
 
     def _write_ftstring_inner(self, node, is_format_spec=False):
-        if isinstance(node, JoinedStr):
+        if isinstance(node, (JoinedStr, TemplateStr)):
             # for both the f-string itself, and format_spec
             for value in node.values:
                 self._write_ftstring_inner(value, is_format_spec=is_format_spec)

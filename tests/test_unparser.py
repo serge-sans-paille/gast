@@ -35,6 +35,21 @@ class UnparserTestCase(unittest.TestCase):
         def test_TypeParameter(self):
             self.assertUnparse('type x[T] = list[T]')
 
+        def test_TemplateStr_format_spec(self):
+            val_node = gast.Name(id='value', ctx=gast.Load(), annotation=None, type_comment=None)
+            format_spec_node = gast.TemplateStr(values=[
+                gast.Constant(value='format', kind=None)
+            ])
+            interp_node = gast.Interpolation(
+                value=val_node,
+                str='value',
+                conversion=-1,
+                format_spec=format_spec_node
+            )
+            tree = gast.TemplateStr(values=[interp_node])
+            unparsed = gast.unparse(tree)
+            self.assertEqual(unparsed, "t'{value:format}'")
+
 
 if sys.version_info < (3, 9):
     del UnparserTestCase
