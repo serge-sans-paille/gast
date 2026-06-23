@@ -39,6 +39,11 @@ template = t"Tasty {food}!"
             "], type_ignores=[])")
         self.assertEqual(dump(tree), norm)
 
+    def test_template_string_unparse_format_spec(self):
+        code = 'template = t"Tasty {food:t\'format\'}!"'
+        tree = gast.parse(code)
+        self.assertEqual(gast.unparse(tree).strip(), code)
+
 if sys.version_info < (3, 14):
     del Python3_14TestCase
 
