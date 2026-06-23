@@ -50,6 +50,10 @@ class UnparserTestCase(unittest.TestCase):
             unparsed = gast.unparse(tree)
             self.assertEqual(unparsed, "t'{value:format}'")
 
+        def test_JoinedStr_format_spec_quotes(self):
+            self.assertUnparse("f\"hello {val:'format'}\"")
+
+
 
 if sys.version_info < (3, 9):
     del UnparserTestCase
