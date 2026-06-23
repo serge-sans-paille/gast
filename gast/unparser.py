@@ -675,7 +675,7 @@ class _Unparser(NodeVisitor):
         fstring_parts = []
         for value in values:
             with self.buffered() as buffer:
-                self._write_ftstring_inner(value)
+                self._write_ftstring_inner(value, is_template=(prefix == "t"))
             fstring_parts.append(
                 ("".join(buffer), isinstance(value, Constant))
             )
@@ -687,18 +687,20 @@ class _Unparser(NodeVisitor):
     def visit_TemplateStr(self, node):
         self._write_ftstring(node.values, "t")
 
-    def _write_ftstring_inner(self, node, is_format_spec=False):
+    def _write_ftstring_inner(self, node, is_format_spec=False, is_template=False):
         if isinstance(node, (JoinedStr, TemplateStr)):
             # for both the f-string itself, and format_spec
+            is_template = is_template or isinstance(node, TemplateStr)
             for value in node.values:
-                self._write_ftstring_inner(value, is_format_spec=is_format_spec)
+                self._write_ftstring_inner(value, is_format_spec=is_format_spec, is_template=is_template)
         elif isinstance(node, Constant) and isinstance(node.value, str):
             value = node.value.replace("{", "{{").replace("}", "}}")
 
             if is_format_spec:
                 value = value.replace("\\", "\\\\")
-                value = value.replace("'", "\\'")
-                value = value.replace('"', '\\"')
+                if not is_template:
+                    value = value.replace("'", "\\'")
+                    value = value.replace('"', '\\"')
                 value = value.replace("\n", "\\n")
             self.write(value)
         elif isinstance(node, FormattedValue):
@@ -713,7 +715,7 @@ class _Unparser(NodeVisitor):
         unparser.set_precedence(_Precedence.TEST + 1, inner)
         return unparser.visit(inner)
 
-    def _write_interpolation(self, node, use_str_attr=False):
+    def _write_interpolation(self, node, use_str_attr=False, is_template=False):
         with self.delimit("{", "}"):
             if use_str_attr:
                 expr = node.str
@@ -727,14 +729,14 @@ class _Unparser(NodeVisitor):
                 self.write("!{}".format(chr(node.conversion)))
             if node.format_spec:
                 self.write(":")
-                self._write_ftstring_inner(node.format_spec, is_format_spec=True)
+                self._write_ftstring_inner(node.format_spec, is_format_spec=True, is_template=is_template)
 
     def visit_FormattedValue(self, node):
-        self._write_interpolation(node)
+        self._write_interpolation(node, is_template=False)
 
     def visit_Interpolation(self, node):
         # If `str` is set to `None`, use the `value` to generate the source code.
-        self._write_interpolation(node, use_str_attr=node.str is not None)
+        self._write_interpolation(node, use_str_attr=node.str is not None, is_template=True)
 
     def visit_Name(self, node):
         self.write(node.id)
