@@ -54,6 +54,22 @@ class UnparserTestCase(unittest.TestCase):
             self.assertUnparse("f\"hello {val:'format'}\"")
 
 
+    if sys.version_info >= (3, 10):
+
+        def test_MatchMapping(self):
+            self.assertUnparse('''
+match obj:
+    case {"x": 1}:
+        pass
+''')
+
+        def test_MatchClass(self):
+            self.assertUnparse('''
+match obj:
+    case Point(1, y=2):
+        pass
+''')
+
 
 if sys.version_info < (3, 9):
     del UnparserTestCase

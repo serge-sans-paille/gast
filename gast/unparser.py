@@ -1167,7 +1167,7 @@ class _Unparser(NodeVisitor):
             self.interleave(
                 lambda: self.write(", "),
                 write_key_pattern_pair,
-                zip(keys, node.patterns, strict=True),
+                zip(keys, node.patterns),
             )
             rest = node.rest
             if rest is not None:
@@ -1195,7 +1195,7 @@ class _Unparser(NodeVisitor):
                 self.interleave(
                     lambda: self.write(", "),
                     write_attr_pattern,
-                    zip(attrs, node.kwd_patterns, strict=True),
+                    zip(attrs, node.kwd_patterns),
                 )
 
     def visit_MatchAs(self, node):
