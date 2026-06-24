@@ -109,6 +109,26 @@ class CompatTestCase(unittest.TestCase):
                         "[TypeIgnore(lineno=1, tag='[excuse]')])")
                 self.assertEqual(dump(tree), norm)
 
+            def test_AssignTypeCommentPreservedInGastToAst(self):
+                """Regression test: type_comment on Assign must survive gast->ast roundtrip.
+
+                Previously GAstToAst3.visit_Assign omitted the type_comment
+                argument, silently dropping annotations such as ``x = 1  # type: int``
+                on every gast-to-ast conversion (Python >= 3.8).
+                """
+                code = 'x = 1  # type: int'
+                # Parse with type_comment support so the annotation is captured
+                ast_tree = gast.parse(code, type_comments=True)
+                # Confirm the gast node carries the annotation
+                self.assertEqual(ast_tree.body[0].type_comment, 'int')
+                # Convert back to a standard ast tree
+                converted = gast.gast_to_ast(ast_tree)
+                # The type_comment must survive the roundtrip
+                self.assertEqual(converted.body[0].type_comment, 'int')
+                # Must also compile cleanly
+                compile(converted, '<test>', 'exec')
+
+
             def test_PosonlyArgs(self):
                 code = 'def foo(a, /, b): pass'
                 tree = gast.parse(code, type_comments=True)
