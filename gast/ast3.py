@@ -53,7 +53,7 @@ class Ast3ToGAst(AstToGAst):
             new_node = gast.Assign(
                 self._visit(node.targets),
                 self._visit(node.value),
-                None,  # type_comment
+                self._visit(getattr(node, 'type_comment', None)),
             )
 
             gast.copy_location(new_node, node)
@@ -345,10 +345,17 @@ class GAstToAst3(GAstToAst):
             return ast.copy_location(new_node, node)
 
     def visit_Assign(self, node):
-        new_node = ast.Assign(
-            self._visit(node.targets),
-            self._visit(node.value),
-        )
+        if sys.version_info >= (3, 8):
+            new_node = ast.Assign(
+                self._visit(node.targets),
+                self._visit(node.value),
+                type_comment=self._visit(node.type_comment),
+            )
+        else:
+            new_node = ast.Assign(
+                self._visit(node.targets),
+                self._visit(node.value),
+            )
 
         return ast.copy_location(new_node, node)
 
