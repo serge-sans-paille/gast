@@ -567,7 +567,7 @@ def fix_missing_locations(node):
             else:
                 lineno = node.lineno
         if 'end_lineno' in node._attributes:
-            if not hasattr(node, 'end_lineno'):
+            if getattr(node, 'end_lineno', None) is None:
                 node.end_lineno = end_lineno
             else:
                 end_lineno = node.end_lineno
@@ -577,7 +577,7 @@ def fix_missing_locations(node):
             else:
                 col_offset = node.col_offset
         if 'end_col_offset' in node._attributes:
-            if not hasattr(node, 'end_col_offset'):
+            if getattr(node, 'end_col_offset', None) is None:
                 node.end_col_offset = end_col_offset
             else:
                 end_col_offset = node.end_col_offset
@@ -603,10 +603,16 @@ def increment_lineno(node, n=1):
     location in a file.
     """
     for child in walk(node):
+        # TypeIgnore stores lineno as a field rather than an attribute.
+        if isinstance(child, TypeIgnore):
+            child.lineno = (getattr(child, 'lineno', 0) or 0) + n
+            continue
         if 'lineno' in child._attributes:
             child.lineno = (getattr(child, 'lineno', 0) or 0) + n
         if 'end_lineno' in child._attributes:
-            child.end_lineno = (getattr(child, 'end_lineno', 0) or 0) + n
+            end_lineno = getattr(child, 'end_lineno', None)
+            if end_lineno is not None:
+                child.end_lineno = end_lineno + n
     return node
 
 # Code import from Lib/ast.py

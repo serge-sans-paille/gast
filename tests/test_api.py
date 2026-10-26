@@ -83,6 +83,28 @@ def foo(x=1, *args, **kwargs):
         gast.increment_lineno(tree)
         self.assertEqual(tree.lineno, 2)
 
+    def test_increment_lineno_preserves_unknown_end(self):
+        node = gast.Constant(value=1, kind=None)
+        node.lineno = 5
+        node.col_offset = 0
+        node.end_lineno = None
+        node.end_col_offset = None
+        tree = gast.Expression(node)
+        self.assertIs(gast.increment_lineno(tree, 2), tree)
+        self.assertEqual(node.lineno, 7)
+        self.assertIsNone(node.end_lineno)
+        self.assertEqual(eval(compile(gast.gast_to_ast(tree),
+                                      '<generated>', 'eval')), 1)
+
+    @unittest.skipIf(sys.version_info < (3, 8), 'type comments need Python 3.8')
+    def test_increment_lineno_type_ignore(self):
+        tree = gast.parse('x = 1  # type: ignore[tag]', type_comments=True)
+        gast.increment_lineno(tree, 3)
+        self.assertEqual(tree.body[0].lineno, 4)
+        self.assertEqual(tree.body[0].end_lineno, 4)
+        self.assertEqual(tree.type_ignores[0].lineno, 4)
+        self.assertEqual(tree.type_ignores[0].tag, '[tag]')
+
     def test_get_source_segment(self):
         code = 'x + 1'
         tree = gast.parse(code)
@@ -161,6 +183,31 @@ def foo(x=1, *args, **kwargs):
         gast.fix_missing_locations(tree)
         self.assertEqual(node.lineno, tree.lineno)
         self.assertEqual(node.col_offset, tree.col_offset)
+
+    def test_fix_missing_locations_none_end(self):
+        node = gast.Constant(value=6, kind=None)
+        node.end_lineno = node.end_col_offset = None
+        tree = gast.UnaryOp(gast.USub(), node)
+        tree.lineno, tree.col_offset = 3, 2
+        tree.end_lineno, tree.end_col_offset = 3, 4
+        self.assertIs(gast.fix_missing_locations(tree), tree)
+        self.assertEqual(node.lineno, 3)
+        self.assertEqual(node.col_offset, 2)
+        self.assertEqual(node.end_lineno, 3)
+        self.assertEqual(node.end_col_offset, 4)
+        self.assertEqual(eval(compile(gast.gast_to_ast(gast.Expression(tree)),
+                                      '<generated>', 'eval')), -6)
+
+    def test_fix_missing_locations_preserves_known_end(self):
+        node = gast.Constant(value=6, kind=None)
+        node.lineno, node.col_offset = 3, 3
+        node.end_lineno, node.end_col_offset = 3, 4
+        tree = gast.UnaryOp(gast.USub(), node)
+        tree.lineno, tree.col_offset = 3, 2
+        tree.end_lineno, tree.end_col_offset = 4, 0
+        gast.fix_missing_locations(tree)
+        self.assertEqual(node.end_lineno, 3)
+        self.assertEqual(node.end_col_offset, 4)
 
     def test_NodeTransformer(self):
         node = gast.Constant(value=6, kind=None)
