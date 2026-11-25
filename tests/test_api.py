@@ -163,6 +163,28 @@ def foo(x=1, *args, **kwargs):
         docs = gast.get_docstring(func)
         self.assertEqual(docs, None)
 
+    def test_get_docstring_unicode(self):
+        for template in ('{}', 'def foo(): {}', 'class Foo: {}'):
+            code = template.format("u'''caf\\u00e9\n    details\n    '''")
+            tree = gast.parse(code)
+            native_tree = ast.parse(code)
+            if template != '{}':
+                tree = tree.body[0]
+                native_tree = native_tree.body[0]
+            for clean in (True, False):
+                self.assertEqual(gast.get_docstring(tree, clean=clean),
+                                 ast.get_docstring(native_tree, clean=clean))
+
+    def test_get_docstring_unicode_literals(self):
+        code = "from __future__ import unicode_literals\ndef foo(): 'caf\\u00e9'"
+        self.assertEqual(gast.get_docstring(gast.parse(code).body[1]),
+                         ast.get_docstring(ast.parse(code).body[1]))
+
+    def test_get_docstring_bytes(self):
+        code = "b'foo'"
+        self.assertEqual(gast.get_docstring(gast.parse(code)),
+                         ast.get_docstring(ast.parse(code)))
+
     def test_copy_location(self):
         tree = gast.Constant(value=1, kind=None)
         tree.lineno = 1
