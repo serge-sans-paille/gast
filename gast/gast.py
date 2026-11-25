@@ -395,7 +395,7 @@ if _sys.version_info >= (3, 10):
         ('Module', (list[stmt], list[type_ignore])),
         ('Interactive', (list[stmt],)),
         ('Expression', (expr,)),
-        ('FunctionType', ('argtypes', 'returns'),),
+        ('FunctionType', (list[expr], expr),),
         ('Suite', (list[stmt],),),
 
         # stmt
@@ -415,7 +415,7 @@ if _sys.version_info >= (3, 10):
         ('If', (expr, list[stmt], list[stmt]), ),
         ('With', (list[withitem], list[stmt], str | None), ),
         ('AsyncWith', (list[withitem], list[stmt], str | None), ),
-        ('Match', (expr, match_case), ),
+        ('Match', (expr, list[match_case]), ),
         ('Raise', (expr | None, expr | None), ),
         ('Try', (list[stmt], list[excepthandler], list[stmt], list[stmt]), ),
         ('TryStar', (list[stmt], list[excepthandler], list[stmt], list[stmt]), ),
@@ -435,7 +435,7 @@ if _sys.version_info >= (3, 10):
         ('UnaryOp', (unaryop, expr), ),
         ('Lambda', (arguments, expr), ),
         ('IfExp', (expr, expr, expr), ),
-        ('Dict', (list[expr], list[expr]), ),
+        ('Dict', (list[expr | None], list[expr]), ),
         ('Set', (list[expr],), ),
         ('ListComp', (expr, list[comprehension]), ),
         ('SetComp', (expr, list[comprehension]), ),
@@ -448,14 +448,14 @@ if _sys.version_info >= (3, 10):
         ('Call', (expr, list[expr], list[keyword]), ),
         ('Repr', (expr,), ),
         ('FormattedValue', (expr, int, expr | None), ),
-        ('Interpolation', (expr, str, int, expr | None), ),
+        ('Interpolation', (expr, str | None, int, expr | None), ),
         ('JoinedStr', (list[expr],), ),
         ('TemplateStr', (list[expr],), ),
         ('Constant', (object, str | None), ),
         ('Attribute', (expr, str, expr_context), ),
         ('Subscript', (expr, expr, expr_context), ),
         ('Starred', (expr, expr_context), ),
-        ('Name', (str, expr_context, expr, str | None), ),
+        ('Name', (str, expr_context, expr | None, str | None), ),
         ('List', (list[expr], expr_context), ),
         ('Tuple', (list[expr], expr_context), ),
         ('Slice', (expr | None, expr | None, expr | None), ),
@@ -464,10 +464,10 @@ if _sys.version_info >= (3, 10):
         ('comprehension', (expr, expr, list[expr], int), ),
 
         # excepthandler
-        ('ExceptHandler', (expr | None, str | None, list[stmt]), ),
+        ('ExceptHandler', (expr | None, Name | None, list[stmt]), ),
 
         # arguments
-        ('arguments', (list[expr], list[expr], expr | None, list[expr], list[expr], expr | None, list[expr]), ),
+        ('arguments', (list[expr], list[expr], expr | None, list[expr], list[expr | None], expr | None, list[expr]), ),
 
         # keyword
         ('keyword', (str | None, expr), ),
@@ -479,7 +479,7 @@ if _sys.version_info >= (3, 10):
         ('withitem', (expr, expr | None), ),
 
         # match_case
-        ('match_case', (pattern, expr, list[stmt]), ),
+        ('match_case', (pattern, expr | None, list[stmt]), ),
 
         # pattern
         ('MatchValue', (expr,), ),
