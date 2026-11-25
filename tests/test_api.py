@@ -12,6 +12,48 @@ def dump(node):
 
 class APITestCase(unittest.TestCase):
 
+    def assertFieldTypes(self, tree):
+        from typing import get_args, get_origin
+
+        def check(value, expected):
+            if get_origin(expected) is list:
+                self.assertIsInstance(value, list)
+                for item in value:
+                    check(item, get_args(expected)[0])
+            else:
+                self.assertIsInstance(value, expected)
+
+        for node in gast.walk(tree):
+            for field, value in gast.iter_fields(node):
+                check(value, node._field_types[field])
+
+    @unittest.skipIf(sys.version_info < (3, 10), 'field types need Python 3.10')
+    def test_field_types_function_type(self):
+        self.assertFieldTypes(gast.parse('(int, str) -> bool', mode='func_type'))
+
+    @unittest.skipIf(sys.version_info < (3, 10), 'field types need Python 3.10')
+    def test_field_types_optional_annotations_and_defaults(self):
+        self.assertFieldTypes(gast.parse('def f(*, required, optional=None): pass'))
+
+    @unittest.skipIf(sys.version_info < (3, 10), 'field types need Python 3.10')
+    def test_field_types_dictionary_unpacking(self):
+        self.assertFieldTypes(gast.parse('{**options, "value": 1}'))
+
+    @unittest.skipIf(sys.version_info < (3, 10), 'field types need Python 3.10')
+    def test_field_types_exception_names(self):
+        self.assertFieldTypes(gast.parse('try:\n pass\nexcept Exception as error:\n pass'))
+
+    @unittest.skipIf(sys.version_info < (3, 10), 'field types need Python 3.10')
+    def test_field_types_match_cases(self):
+        self.assertFieldTypes(gast.parse('match value:\n case 1:\n  pass'))
+
+    @unittest.skipIf(sys.version_info < (3, 10), 'field types need Python 3.10')
+    def test_field_types_interpolation_without_source(self):
+        interpolation = gast.Interpolation(
+            value=gast.Constant(value=1, kind=None), str=None,
+            conversion=-1, format_spec=None)
+        self.assertFieldTypes(gast.TemplateStr(values=[interpolation]))
+
     def test_literal_eval_string(self):
         code = "1, 3"
         self.assertEqual(ast.literal_eval(code),
